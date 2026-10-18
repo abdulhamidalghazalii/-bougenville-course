@@ -23,27 +23,27 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slateNavy-100">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slateGray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <div
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate(isAdmin ? '/admin' : '/tutor')}
         >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-brand-400 p-2 shadow-md shadow-brand-500/20 flex items-center justify-center text-white">
-            <GraduationCap className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-navyInk-700 shadow-subtle flex items-center justify-center text-white">
+            <GraduationCap className="w-5 h-5 text-softBlue-100" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base sm:text-lg text-slateNavy-900 tracking-tight">
+              <span className="font-extrabold text-base sm:text-lg text-navyInk-700 tracking-tight">
                 Syafa Course
               </span>
-              <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-pastelPink-100 text-pastelPink-700 text-[10px] font-bold">
+              <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-softBlue text-navyInk-700">
                 Calistung
               </span>
             </div>
-            <p className="hidden md:block text-[11px] text-slateNavy-500 font-medium">
-              Belajar Ceria, Tumbuh Bersama
+            <p className="hidden md:block text-[11px] text-slateGray-500 font-medium">
+              Belajar Ceria, Tumbuh Penuh Percaya Diri
             </p>
           </div>
         </div>

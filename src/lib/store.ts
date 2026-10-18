@@ -13,7 +13,18 @@ import {
   AssessmentLevel,
   StudentAssessment,
 } from '../types';
-import { MOCK_PROGRAMS, MOCK_INDICATORS } from '../data/mockData';
+import {
+  MOCK_ADMIN,
+  MOCK_TUTORS,
+  MOCK_PROGRAMS,
+  MOCK_INDICATORS,
+  MOCK_STUDENTS,
+  MOCK_PARENTS,
+  MOCK_SCHEDULES,
+  MOCK_ATTENDANCES,
+  MOCK_SESSIONS,
+  MOCK_REPORTS,
+} from '../data/mockData';
 
 export interface UserAccount extends Profile {
   passwordHash: string; // Stored hash/credential for local authentication
@@ -73,16 +84,31 @@ class AppStore {
   }
 
   initialize() {
-    this.currentUser = loadData<Profile | null>(STORAGE_KEYS.CURRENT_USER, null);
-    this.accounts = loadData<UserAccount[]>(STORAGE_KEYS.ACCOUNTS, []);
-    this.students = loadData<Student[]>(STORAGE_KEYS.STUDENTS, []);
-    this.parents = loadData<Parent[]>(STORAGE_KEYS.PARENTS, []);
+    const defaultAccounts: UserAccount[] = [
+      {
+        ...MOCK_ADMIN,
+        passwordHash: btoa('admin123'),
+      },
+      ...MOCK_TUTORS.map((t) => ({
+        ...t,
+        passwordHash: btoa('tutor123'),
+      })),
+    ];
+
+    this.accounts = loadData<UserAccount[]>(STORAGE_KEYS.ACCOUNTS, defaultAccounts);
+    // Default logged in user to Tutor so visitor immediately sees the full Syafa Course experience
+    this.currentUser = loadData<Profile | null>(
+      STORAGE_KEYS.CURRENT_USER,
+      this.accounts.find((a) => a.role === 'tutor') || this.accounts[0] || null
+    );
+    this.students = loadData<Student[]>(STORAGE_KEYS.STUDENTS, MOCK_STUDENTS);
+    this.parents = loadData<Parent[]>(STORAGE_KEYS.PARENTS, MOCK_PARENTS);
     this.programs = loadData<Program[]>(STORAGE_KEYS.PROGRAMS, MOCK_PROGRAMS);
     this.indicators = loadData<LearningIndicator[]>(STORAGE_KEYS.INDICATORS, MOCK_INDICATORS);
-    this.schedules = loadData<Schedule[]>(STORAGE_KEYS.SCHEDULES, []);
-    this.attendances = loadData<Attendance[]>(STORAGE_KEYS.ATTENDANCES, []);
-    this.sessions = loadData<LearningSession[]>(STORAGE_KEYS.SESSIONS, []);
-    this.reports = loadData<LearningReport[]>(STORAGE_KEYS.REPORTS, []);
+    this.schedules = loadData<Schedule[]>(STORAGE_KEYS.SCHEDULES, MOCK_SCHEDULES);
+    this.attendances = loadData<Attendance[]>(STORAGE_KEYS.ATTENDANCES, MOCK_ATTENDANCES);
+    this.sessions = loadData<LearningSession[]>(STORAGE_KEYS.SESSIONS, MOCK_SESSIONS);
+    this.reports = loadData<LearningReport[]>(STORAGE_KEYS.REPORTS, MOCK_REPORTS);
     this.auditLogs = loadData<AuditLog[]>(STORAGE_KEYS.AUDIT_LOGS, []);
   }
 
