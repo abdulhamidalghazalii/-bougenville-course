@@ -84,8 +84,31 @@ class AppStore {
   }
 
   initialize() {
+    const defaultAccounts: UserAccount[] = [
+      {
+        id: 'usr-admin-default',
+        email: 'admin@syafacourse.id',
+        full_name: 'Administrator Lembaga',
+        role: 'admin',
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        passwordHash: btoa('admin123'),
+      },
+      {
+        id: 'usr-tutor-default',
+        email: 'aisyah@syafacourse.id',
+        full_name: 'Aisyah Putri, S.Pd',
+        role: 'tutor',
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        passwordHash: btoa('tutor123'),
+      },
+    ];
+
     this.currentUser = loadData<Profile | null>(STORAGE_KEYS.CURRENT_USER, null);
-    this.accounts = loadData<UserAccount[]>(STORAGE_KEYS.ACCOUNTS, []);
+    this.accounts = loadData<UserAccount[]>(STORAGE_KEYS.ACCOUNTS, defaultAccounts);
     this.students = loadData<Student[]>(STORAGE_KEYS.STUDENTS, []);
     this.parents = loadData<Parent[]>(STORAGE_KEYS.PARENTS, []);
     this.programs = loadData<Program[]>(STORAGE_KEYS.PROGRAMS, MOCK_PROGRAMS);
