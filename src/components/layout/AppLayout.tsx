@@ -6,7 +6,7 @@ import { BottomNav } from './BottomNav';
 
 export const AppLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-cream-100 flex flex-col">
+    <div className="min-h-screen bg-slateGray-50 flex flex-col font-sans">
       <Navbar />
       <div className="flex-1 flex max-w-7xl w-full mx-auto pb-16 md:pb-0">
         <Sidebar />

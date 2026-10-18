@@ -262,32 +262,30 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
       )}
 
       {/* Main Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* Main Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slateGray-200 pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider">
-              Evaluasi Berkala Sebulan Sekali
-            </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
-              Desain Edukatif Premium
-            </span>
+          <div className="flex items-center gap-2 mb-1 text-xs">
+            <span className="font-bold uppercase tracking-wider text-navyInk-700">Laporan Perkembangan Bulanan</span>
+            <span className="text-slateGray-300">•</span>
+            <span className="text-slateGray-500">Evaluasi Berkala & Apresiasi Karakter</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slateNavy-900 tracking-tight">
-            Rapor Bulanan Siswa & Pengiriman ke Wali Murid
+          <h1 className="text-2xl font-bold text-navyInk-700 tracking-tight">
+            Rapor Calistung Siswa & Pengiriman ke Wali
           </h1>
-          <p className="text-sm text-slateNavy-500 mt-1 max-w-2xl">
+          <p className="text-xs text-slateGray-500 mt-0.5 max-w-2xl">
             Laporan perkembangan belajar ananda disusun sebulan sekali sebagai wujud transparansi, apresiasi karakter, dan panduan stimulasi hangat bagi orang tua di rumah.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
-            leftIcon={<Printer className="w-4 h-4 text-slateNavy-600" />}
+            leftIcon={<Printer className="w-4 h-4 text-slateGray-600" />}
             onClick={handlePrintPdf}
           >
-            Cetak Dokumen
+            Cetak Lembar
           </Button>
           <Button
             variant="primary"
@@ -301,20 +299,20 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
       </div>
 
       {/* Monthly Control Strip & Student Selector */}
-      <Card className="p-5 shadow-sm border border-slateNavy-100 bg-white">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="p-4 rounded-lg border border-slateGray-200 bg-white shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Siswa */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slateNavy-600">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slateGray-600">
               Pilih Siswa Calistung
             </label>
             {myStudents.length === 0 ? (
-              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+              <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
                 <span>Belum ada siswa aktif.</span>
                 <button
                   type="button"
                   onClick={() => navigate('/tutor/students')}
-                  className="font-bold underline text-brand-600"
+                  className="font-bold underline text-navyInk-700"
                 >
                   Daftarkan
                 </button>
@@ -323,7 +321,7 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
               <select
                 value={selectedStudentId}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="w-full rounded-xl border border-slateNavy-200 bg-cream-50/50 px-3 py-2.5 text-sm font-semibold text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:bg-white"
+                className="w-full rounded-lg border border-slateGray-200 bg-slateGray-50/60 px-3 py-2 text-xs font-semibold text-navyInk-900 focus:outline-none focus:ring-1 focus:ring-navyInk-600 focus:bg-white"
               >
                 {myStudents.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -335,14 +333,14 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
           </div>
 
           {/* Bulan */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slateNavy-600">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slateGray-600">
               Pilih Bulan Laporan
             </label>
             <select
               value={selectedMonthIndex}
               onChange={(e) => setSelectedMonthIndex(Number(e.target.value))}
-              className="w-full rounded-xl border border-slateNavy-200 bg-cream-50/50 px-3 py-2.5 text-sm font-semibold text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:bg-white"
+              className="w-full rounded-lg border border-slateGray-200 bg-slateGray-50/60 px-3 py-2 text-xs font-semibold text-navyInk-900 focus:outline-none focus:ring-1 focus:ring-navyInk-600 focus:bg-white"
             >
               {MONTH_NAMES.map((m, idx) => (
                 <option key={m} value={idx}>
@@ -353,14 +351,14 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
           </div>
 
           {/* Tahun */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slateNavy-600">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slateGray-600">
               Tahun Ajaran
             </label>
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="w-full rounded-xl border border-slateNavy-200 bg-cream-50/50 px-3 py-2.5 text-sm font-semibold text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:bg-white"
+              className="w-full rounded-lg border border-slateGray-200 bg-slateGray-50/60 px-3 py-2 text-xs font-semibold text-navyInk-900 focus:outline-none focus:ring-1 focus:ring-navyInk-600 focus:bg-white"
             >
               <option value={2025}>2025</option>
               <option value={2026}>2026</option>
@@ -369,34 +367,34 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
           </div>
 
           {/* Pilihan Template PDF Unik */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slateNavy-600">
-              Template Desain PDF
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slateGray-600">
+              Format Desain PDF
             </label>
             <select
               value={pdfTheme}
               onChange={(e) => setPdfTheme(e.target.value as PdfReportTheme)}
-              className="w-full rounded-xl border border-slateNavy-200 bg-cream-50/50 px-3 py-2.5 text-sm font-semibold text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:bg-white"
+              className="w-full rounded-lg border border-slateGray-200 bg-slateGray-50/60 px-3 py-2 text-xs font-semibold text-navyInk-900 focus:outline-none focus:ring-1 focus:ring-navyInk-600 focus:bg-white"
             >
-              <option value="ceria_pastel">🌸 Ceria Pastel Kids (PAUD & TK)</option>
-              <option value="prestasi_modern">🎓 Prestasi Modern (TK-B & SD)</option>
+              <option value="ceria_pastel">Ceria Edukatif (PAUD & TK)</option>
+              <option value="prestasi_modern">Prestasi Akademik (TK-B & SD)</option>
             </select>
           </div>
         </div>
 
         {/* Action Bar & Stats Summary */}
-        <div className="mt-5 pt-4 border-t border-slateNavy-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 text-xs text-slateNavy-600 flex-wrap">
+        <div className="mt-4 pt-3.5 border-t border-slateGray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-4 text-xs text-slateGray-600 flex-wrap">
             <div className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-brand-600" />
+              <Calendar className="w-4 h-4 text-navyInk-600" />
               <span>Periode: <strong>1 - {periodDates.endDate.getDate()} {monthName}</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4 text-emerald-600" />
-              <span>Data Sesi: <strong>{studentMonthSessions.length} sesi pertemuan tercatat</strong></span>
+              <BookOpen className="w-4 h-4 text-slateGray-600" />
+              <span>Data Sesi: <strong>{studentMonthSessions.length} sesi tercatat</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Heart className="w-4 h-4 text-pastelPink-500" />
+              <Heart className="w-4 h-4 text-slateGray-500" />
               <span>Wali Murid: <strong>{selectedStudent?.parent?.full_name || 'Ayah/Bunda'}</strong></span>
             </div>
           </div>
@@ -420,13 +418,13 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Warning if no sessions recorded for this month */}
       {studentMonthSessions.length === 0 && (
-        <div className="p-4 rounded-xl bg-warmCream border border-softCoral-300 text-navyInk-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 rounded-lg bg-slateGray-100 border border-slateGray-200 text-navyInk-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-5 h-5 text-softCoral-500 shrink-0" />
+            <AlertCircle className="w-4 h-4 text-slateGray-600 shrink-0" />
             <div>
               <span className="font-bold block">Pemberitahuan Kelengkapan Data:</span>
               <span className="text-slateGray-600">
@@ -444,50 +442,30 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
         </div>
       )}
 
-      {/* 4 Stat Highlights for Selected Month */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-100 flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-blue-500/10 text-brand-600 flex items-center justify-center font-bold text-lg">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold text-slateNavy-500 uppercase">Pertemuan Selesai</div>
-            <div className="text-xl font-extrabold text-slateNavy-900">{studentMonthSessions.length || 8} Sesi</div>
-            <div className="text-[10px] text-blue-600 font-medium">Bulan {monthName}</div>
-          </div>
+      {/* Anti-AI-Slop Metric Summary Strip (Replaces the 4 Rainbow Candy Cards) */}
+      <div className="bg-white rounded-lg border border-slateGray-200 p-4 grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slateGray-200">
+        <div className="p-2 sm:p-3">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Pertemuan Tuntas</span>
+          <div className="text-xl font-bold text-navyInk-700 mt-1">{studentMonthSessions.length || 8} Sesi</div>
+          <span className="text-[11px] text-slateGray-400 mt-0.5 block">Periode {monthName}</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-lg">
-            <Award className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold text-slateNavy-500 uppercase">Tingkat Hadir</div>
-            <div className="text-xl font-extrabold text-slateNavy-900">100% Ceria</div>
-            <div className="text-[10px] text-emerald-600 font-medium">Sangat disiplin & aktif</div>
-          </div>
+        <div className="p-2 sm:p-3">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Tingkat Kehadiran</span>
+          <div className="text-xl font-bold text-navyInk-700 mt-1">100% Ceria</div>
+          <span className="text-[11px] text-deepSage font-medium mt-0.5 block">Presensi tertib & disiplin</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-pink-50 to-white border border-pink-100 flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-pink-500/10 text-pastelPink-600 flex items-center justify-center font-bold text-lg">
-            <PenTool className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold text-slateNavy-500 uppercase">Durasi Total</div>
-            <div className="text-xl font-extrabold text-slateNavy-900">{(studentMonthSessions.length || 8) * 60} Menit</div>
-            <div className="text-[10px] text-pink-600 font-medium">Belajar efektif terarah</div>
-          </div>
+        <div className="p-2 sm:p-3">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Total Waktu Belajar</span>
+          <div className="text-xl font-bold text-navyInk-700 mt-1">{(studentMonthSessions.length || 8) * 60} Menit</div>
+          <span className="text-[11px] text-slateGray-400 mt-0.5 block">Bimbingan privat intensif</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-white border border-amber-100 flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-lg">
-            <Smile className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[11px] font-bold text-slateNavy-500 uppercase">Predikat Karakter</div>
-            <div className="text-xl font-extrabold text-slateNavy-900">Mandiri ⭐</div>
-            <div className="text-[10px] text-amber-700 font-medium">Percaya diri tinggi</div>
-          </div>
+        <div className="p-2 sm:p-3">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Observasi Karakter</span>
+          <div className="text-xl font-bold text-navyInk-700 mt-1">Mandiri & Percaya Diri</div>
+          <span className="text-[11px] text-slateGray-500 mt-0.5 block">Fokus & antusias belajar</span>
         </div>
       </div>
 
@@ -495,50 +473,50 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Note Customizer for Monthly Report (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <Card className="p-5 space-y-4 shadow-sm border border-slateNavy-100">
-            <div className="flex items-center justify-between border-b border-slateNavy-100 pb-3">
+          <div className="bg-white rounded-lg border border-slateGray-200 p-5 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between border-b border-slateGray-100 pb-3">
               <div className="flex items-center gap-2">
-                <Edit3 className="w-4 h-4 text-brand-600" />
-                <h2 className="text-sm font-bold text-slateNavy-900">Kustomisasi Catatan Rapor</h2>
+                <Edit3 className="w-4 h-4 text-navyInk-700" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-navyInk-700">Catatan Narasi Tutor</h2>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-cream-200 text-slateNavy-700 font-semibold">
-                Bisa diedit tutor
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-slateGray-100 text-slateGray-600 font-medium">
+                Dapat disesuaikan
               </span>
             </div>
 
             {/* Narasi Umum */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slateNavy-700">
-                1. Narasi Kemajuan Umum Bulan Ini
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-navyInk-800">
+                1. Narasi Kemajuan Belajar Bulan Ini
               </label>
               <textarea
                 rows={4}
                 value={generalNarrative}
                 onChange={(e) => setGeneralNarrative(e.target.value)}
                 placeholder="Tuliskan apresiasi dan ringkasan perkembangan belajar anak selama sebulan terakhir..."
-                className="w-full text-xs rounded-xl border border-slateNavy-200 p-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full text-xs rounded-lg border border-slateGray-200 p-3 bg-white focus:outline-none focus:ring-1 focus:ring-navyInk-600 text-slateGray-800 leading-relaxed"
               />
             </div>
 
             {/* Karakter Unggul */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slateNavy-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>2. Karakter Unggul & Pujian Ananda</span>
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-navyInk-800 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-navyInk-600" />
+                <span>2. Karakter & Sikap Belajar Positif</span>
               </label>
               <textarea
                 rows={3}
                 value={studentStrengths}
                 onChange={(e) => setStudentStrengths(e.target.value)}
                 placeholder="Contoh: Fokus ananda sangat baik, tidak mudah menyerah saat belajar suku kata baru..."
-                className="w-full text-xs rounded-xl border border-slateNavy-200 p-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full text-xs rounded-lg border border-slateGray-200 p-3 bg-white focus:outline-none focus:ring-1 focus:ring-navyInk-600 text-slateGray-800 leading-relaxed"
               />
             </div>
 
             {/* Hal yang Sedang Dilatih */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slateNavy-700 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-brand-500" />
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-navyInk-800 flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-navyInk-600" />
                 <span>3. Hal yang Terus Dilatih Bersama</span>
               </label>
               <textarea
@@ -546,14 +524,14 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
                 value={focusAreas}
                 onChange={(e) => setFocusAreas(e.target.value)}
                 placeholder="Contoh: Pembiasaan memegang pensil secara rileks agar jari ananda tidak lelah..."
-                className="w-full text-xs rounded-xl border border-slateNavy-200 p-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full text-xs rounded-lg border border-slateGray-200 p-3 bg-white focus:outline-none focus:ring-1 focus:ring-navyInk-600 text-slateGray-800 leading-relaxed"
               />
             </div>
 
             {/* Rekomendasi di Rumah */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slateNavy-700 flex items-center gap-1.5">
-                <Heart className="w-3.5 h-3.5 text-pastelPink-500" />
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-navyInk-800 flex items-center gap-1.5">
+                <Heart className="w-3.5 h-3.5 text-navyInk-600" />
                 <span>4. Ide Stimulasi Santai di Rumah (10 Menit)</span>
               </label>
               <textarea
@@ -561,13 +539,13 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
                 value={homeTips}
                 onChange={(e) => setHomeTips(e.target.value)}
                 placeholder="Tuliskan 3 tips bermain edukatif tanpa gadget untuk Ayah & Bunda di rumah..."
-                className="w-full text-xs rounded-xl border border-slateNavy-200 p-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full text-xs rounded-lg border border-slateGray-200 p-3 bg-white focus:outline-none focus:ring-1 focus:ring-navyInk-600 text-slateGray-800 leading-relaxed"
               />
             </div>
 
             {/* Target Bulan Depan */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slateNavy-700">
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-navyInk-800">
                 5. Target Pembelajaran Bulan Depan
               </label>
               <textarea
@@ -575,24 +553,24 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
                 value={nextTargets}
                 onChange={(e) => setNextTargets(e.target.value)}
                 placeholder="Target kemampuan membaca, menulis, dan berhitung untuk bulan berikutnya..."
-                className="w-full text-xs rounded-xl border border-slateNavy-200 p-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full text-xs rounded-lg border border-slateGray-200 p-3 bg-white focus:outline-none focus:ring-1 focus:ring-navyInk-600 text-slateGray-800 leading-relaxed"
               />
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* Right Column: Realistic A4 Document Sheet Live Preview (7 cols) */}
         <div className="lg:col-span-7 space-y-3">
           {/* Page Tabs */}
-          <div className="flex items-center justify-between bg-white p-2 rounded-2xl border border-slateNavy-100 shadow-sm">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-slateGray-200 shadow-xs">
+            <div className="inline-flex p-0.5 bg-slateGray-100 rounded-md border border-slateGray-200 text-xs">
               <button
                 type="button"
                 onClick={() => setPreviewPage(1)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
                   previewPage === 1
-                    ? 'bg-brand-600 text-white shadow-sm'
-                    : 'text-slateNavy-600 hover:bg-slateNavy-50'
+                    ? 'bg-white text-navyInk-800 shadow-xs'
+                    : 'text-slateGray-600 hover:text-navyInk-800'
                 }`}
               >
                 Hal 1: Cover & Ikhtisar
@@ -600,10 +578,10 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
               <button
                 type="button"
                 onClick={() => setPreviewPage(2)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
                   previewPage === 2
-                    ? 'bg-brand-600 text-white shadow-sm'
-                    : 'text-slateNavy-600 hover:bg-slateNavy-50'
+                    ? 'bg-white text-navyInk-800 shadow-xs'
+                    : 'text-slateGray-600 hover:text-navyInk-800'
                 }`}
               >
                 Hal 2: Rincian Calistung
@@ -611,107 +589,109 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
               <button
                 type="button"
                 onClick={() => setPreviewPage(3)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
                   previewPage === 3
-                    ? 'bg-brand-600 text-white shadow-sm'
-                    : 'text-slateNavy-600 hover:bg-slateNavy-50'
+                    ? 'bg-white text-navyInk-800 shadow-xs'
+                    : 'text-slateGray-600 hover:text-navyInk-800'
                 }`}
               >
-                Hal 3: Rekomendasi & Stempel
+                Hal 3: Rekomendasi & Pengesahan
               </button>
             </div>
 
-            <span className="text-[11px] text-slateNavy-400 font-mono hidden sm:inline">
+            <span className="text-[11px] text-slateGray-400 font-mono hidden sm:inline">
               Simulasi Cetak A4
             </span>
           </div>
 
-          {/* Sheet Canvas with Realistic Shadow */}
-          <div className="bg-white rounded-3xl border-2 border-slateNavy-200/80 p-6 md:p-8 shadow-card relative overflow-hidden transition-all text-slateNavy-800">
-            {/* Top decorative stripe */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-500 via-pastelPink-400 to-amber-400" />
+          {/* Sheet Canvas: Crisp, Physical Editorial Paper */}
+          <div className="bg-white rounded-lg border border-slateGray-300 p-6 md:p-8 shadow-sm relative overflow-hidden transition-all text-slateGray-800">
 
             {/* HALAMAN 1 PREVIEW */}
             {previewPage === 1 && (
-              <div className="space-y-6 animate-in fade-in duration-200 text-xs">
+              <div className="space-y-5 animate-in fade-in duration-200 text-xs">
                 {/* Header Branding */}
-                <div className="flex items-center justify-between border-b border-slateNavy-100 pb-3">
+                <div className="flex items-center justify-between border-b border-slateGray-200 pb-3">
                   <div>
-                    <span className="text-base font-extrabold text-brand-700 tracking-tight">SYAFA COURSE</span>
-                    <p className="text-[10px] text-slateNavy-500">Les Privat Calistung PAUD • TK • SD | "Belajar Ceria, Tumbuh Penuh Percaya Diri"</p>
+                    <span className="text-sm font-bold text-navyInk-800 tracking-tight">SYAFA COURSE</span>
+                    <p className="text-[10px] text-slateGray-500">Bimbingan Belajar Calistung Berbasis Karakter & Fonik Anak</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[9px] font-bold text-amber-700 block">RAPOR BULANAN RESMI</span>
-                    <span className="text-[9px] font-mono text-slateNavy-400">NO: SC/RP/{selectedStudent?.student_code || '001'}</span>
+                    <span className="text-[9px] font-bold text-navyInk-700 block uppercase tracking-wider">Laporan Resmi Bulanan</span>
+                    <span className="text-[9px] font-mono text-slateGray-400">NO: SC/RP/{selectedStudent?.student_code || '001'}</span>
                   </div>
                 </div>
 
-                {/* Banner Hero */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-brand-50 to-pink-50 border border-brand-200/80 flex items-center justify-between">
+                {/* Document Title Banner */}
+                <div className="p-3.5 rounded-lg border border-slateGray-200 bg-slateGray-50 flex items-center justify-between">
                   <div>
-                    <span className="px-2 py-0.5 rounded-full bg-brand-600 text-white text-[9px] font-bold uppercase">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-navyInk-700 block">
                       Laporan Perkembangan Belajar
                     </span>
-                    <h3 className="text-base font-black text-slateNavy-900 mt-1">
+                    <h3 className="text-sm font-bold text-navyInk-800 mt-0.5">
                       RAPOR CALISTUNG BULANAN
                     </h3>
-                    <p className="text-[11px] text-slateNavy-600">
-                      Membaca Fonik, Menulis Motorik & Logika Kuantitas Angka
+                    <p className="text-[10px] text-slateGray-500">
+                      Membaca Fonik, Menulis Motorik Halus & Logika Bilangan
                     </p>
                   </div>
-                  <div className="text-center bg-white px-3.5 py-2 rounded-xl border border-brand-100 shadow-sm">
-                    <span className="text-[9px] text-brand-700 font-bold block uppercase">Periode</span>
-                    <span className="text-xs font-black text-slateNavy-900">{monthName}</span>
+                  <div className="text-right bg-white px-3 py-1.5 rounded border border-slateGray-200">
+                    <span className="text-[9px] text-slateGray-500 uppercase block font-semibold">Periode</span>
+                    <span className="text-xs font-bold text-navyInk-800">{monthName}</span>
                   </div>
                 </div>
 
-                {/* Student Showcase Card */}
-                <div className="p-4 rounded-2xl bg-cream-50/70 border border-slateNavy-200 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-2xl shadow-sm shrink-0">
-                    {selectedStudent?.full_name?.charAt(0) || 'S'}
+                {/* Student Profile Metadata Box */}
+                <div className="rounded-lg border border-slateGray-200 bg-white p-3.5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
+                  <div>
+                    <span className="text-slateGray-400 text-[10px] block">Nama Siswa:</span>
+                    <strong className="text-navyInk-800 block text-xs">{selectedStudent?.full_name}</strong>
+                    <span className="text-slateGray-500 text-[10px]">NIS: {selectedStudent?.student_code}</span>
                   </div>
-                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                    <div>
-                      <div className="font-extrabold text-sm text-slateNavy-900">{selectedStudent?.full_name}</div>
-                      <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 text-[10px] font-bold">
-                        Jenjang: {selectedStudent?.education_level}
-                      </span>
-                      <p className="text-slateNavy-500 mt-1">NIS: {selectedStudent?.student_code}</p>
-                    </div>
-                    <div className="sm:border-l sm:border-slateNavy-200 sm:pl-3 text-slateNavy-600 space-y-0.5">
-                      <div>Wali: <strong>{selectedStudent?.parent?.full_name || 'Ayah/Bunda'}</strong></div>
-                      <div>Tutor: <strong>{currentTutor?.full_name || 'Tutor Syafa'}</strong></div>
-                      <div>Kehadiran: <strong className="text-emerald-700">100% Ceria ({studentMonthSessions.length || 8} Sesi)</strong></div>
-                    </div>
+                  <div>
+                    <span className="text-slateGray-400 text-[10px] block">Jenjang Usia:</span>
+                    <strong className="text-slateGray-700 block text-xs">{selectedStudent?.education_level}</strong>
+                    <span className="text-slateGray-500 text-[10px]">Les Privat</span>
+                  </div>
+                  <div>
+                    <span className="text-slateGray-400 text-[10px] block">Wali Murid:</span>
+                    <strong className="text-slateGray-700 block text-xs">{selectedStudent?.parent?.full_name || 'Ayah/Bunda'}</strong>
+                    <span className="text-slateGray-500 text-[10px]">{selectedStudent?.parent?.whatsapp_number}</span>
+                  </div>
+                  <div>
+                    <span className="text-slateGray-400 text-[10px] block">Tutor & Kehadiran:</span>
+                    <strong className="text-slateGray-700 block text-xs">{currentTutor?.full_name || 'Tutor Syafa'}</strong>
+                    <span className="text-deepSage font-semibold text-[10px]">{studentMonthSessions.length || 8} Sesi (100% Hadir)</span>
                   </div>
                 </div>
 
                 {/* Narasi Preview */}
-                <div className="p-4 rounded-2xl bg-white border border-slateNavy-200 space-y-2">
-                  <h4 className="font-bold text-xs text-brand-700 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>I. Narasi Perkembangan Belajar Ananda Bulan Ini</span>
+                <div className="rounded-lg border border-slateGray-200 p-4 space-y-2 bg-slateGray-50/50">
+                  <h4 className="font-bold text-xs text-navyInk-800 flex items-center gap-1.5">
+                    <span>I. Ringkasan & Narasi Perkembangan Belajar Ananda</span>
                   </h4>
-                  <p className="text-[11px] leading-relaxed text-slateNavy-700 italic">
+                  <div className="border-l-2 border-navyInk-700 pl-3 py-1 text-[11px] leading-relaxed text-slateGray-700 italic">
                     "{generalNarrative || 'Ananda menunjukkan kemajuan belajar yang membanggakan di setiap pertemuan...'}"
-                  </p>
+                  </div>
                 </div>
 
                 {/* Rubrik Legend for Parents */}
-                <div className="p-3.5 rounded-2xl bg-slateNavy-50 border border-slateNavy-200 text-[10px] space-y-1.5">
-                  <span className="font-bold text-slateNavy-900 block">Panduan Skala Capaian untuk Ayah & Bunda:</span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-900">
-                      <strong>[ BSB ] ★★★★</strong>: Berkembang Sangat Baik (Mandiri & Percaya Diri)
+                <div className="p-3.5 rounded-lg border border-slateGray-200 bg-white text-[10px] space-y-2">
+                  <span className="font-bold text-navyInk-800 block uppercase tracking-wider">
+                    Panduan Skala Capaian untuk Orang Tua:
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                    <div className="p-2 rounded border border-slateGray-200 bg-slateGray-50">
+                      <strong className="text-navyInk-800">[ BSB ] ★★★★</strong>: Berkembang Sangat Baik (Mandiri & Percaya Diri)
                     </div>
-                    <div className="p-1.5 rounded-lg bg-blue-50 text-blue-900">
-                      <strong>[ BSH ] ★★★☆</strong>: Berkembang Sesuai Harapan (Tuntas Standar Usia)
+                    <div className="p-2 rounded border border-slateGray-200 bg-slateGray-50">
+                      <strong className="text-navyInk-800">[ BSH ] ★★★☆</strong>: Berkembang Sesuai Harapan (Tuntas Standar Usia)
                     </div>
-                    <div className="p-1.5 rounded-lg bg-amber-50 text-amber-900">
-                      <strong>[ MB ] ★★☆☆</strong>: Mulai Berkembang (Memerlukan Arahan Tutor)
+                    <div className="p-2 rounded border border-slateGray-200 bg-slateGray-50">
+                      <strong className="text-slateGray-700">[ MB ] ★★☆☆</strong>: Mulai Berkembang (Perlu Stimulasi Tutor)
                     </div>
-                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-900">
-                      <strong>[ BB ] ★☆☆☆</strong>: Belum Berkembang (Membutuhkan Stimulasi Santai)
+                    <div className="p-2 rounded border border-slateGray-200 bg-slateGray-50">
+                      <strong className="text-slateGray-700">[ BB ] ★☆☆☆</strong>: Belum Berkembang (Pengenalan Konsep Awal)
                     </div>
                   </div>
                 </div>
@@ -721,67 +701,67 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
             {/* HALAMAN 2 PREVIEW: 3 PILAR CALISTUNG */}
             {previewPage === 2 && (
               <div className="space-y-4 animate-in fade-in duration-200 text-xs">
-                <div className="flex items-center justify-between border-b border-slateNavy-100 pb-2">
-                  <h4 className="font-extrabold text-xs text-brand-800 uppercase tracking-wider">
+                <div className="flex items-center justify-between border-b border-slateGray-200 pb-2">
+                  <h4 className="font-bold text-xs text-navyInk-800 uppercase tracking-wider">
                     II. Lembar Capaian Tiga Pilar Calistung ({monthName})
                   </h4>
-                  <Badge variant="blue" size="sm">Tabel Rincian Rubrik</Badge>
+                  <span className="text-[10px] text-slateGray-500 font-mono">Tabel Evaluasi Rubrik</span>
                 </div>
 
                 {/* Pilar Membaca */}
-                <div className="rounded-2xl border border-blue-200 overflow-hidden">
-                  <div className="bg-brand-600 text-white px-3 py-1.5 font-bold text-xs flex justify-between items-center">
-                    <span>📖 A. Aspek Literasi & Membaca Ceria</span>
-                    <span className="text-[10px] bg-brand-700 px-2 py-0.5 rounded-full">Predikat: BSB</span>
+                <div className="rounded-lg border border-slateGray-200 overflow-hidden">
+                  <div className="bg-slateGray-100 border-b border-slateGray-200 px-3 py-1.5 font-bold text-xs text-navyInk-800 flex justify-between items-center">
+                    <span>A. Aspek Literasi & Membaca Fonik</span>
+                    <span className="text-[10px] font-bold text-navyInk-700">Capaian: BSB</span>
                   </div>
-                  <div className="p-3 bg-blue-50/40 divide-y divide-blue-100 text-[11px] space-y-1.5">
+                  <div className="p-3 bg-white divide-y divide-slateGray-100 text-[11px] space-y-1.5">
                     <div className="flex justify-between items-center py-1">
-                      <span>1. Mengenal simbol huruf alfabet A-Z</span>
-                      <strong className="text-emerald-700">★★★★ BSB</strong>
+                      <span className="text-slateGray-700">1. Mengenal simbol dan bunyi huruf alfabet A-Z</span>
+                      <strong className="text-navyInk-700 font-mono">★★★★ BSB</strong>
                     </div>
                     <div className="flex justify-between items-center py-1">
-                      <span>2. Melafalkan bunyi suku kata terbuka (ba, ca, da)</span>
-                      <strong className="text-emerald-700">★★★★ BSB</strong>
+                      <span className="text-slateGray-700">2. Melafalkan bunyi suku kata terbuka secara lancar</span>
+                      <strong className="text-navyInk-700 font-mono">★★★★ BSB</strong>
                     </div>
                     <div className="flex justify-between items-center py-1">
-                      <span>3. Membaca kalimat 2-3 kata dengan intonasi wajar</span>
-                      <strong className="text-blue-700">★★★☆ BSH</strong>
+                      <span className="text-slateGray-700">3. Membaca kalimat sederhana dengan intonasi wajar</span>
+                      <strong className="text-slateGray-600 font-mono">★★★☆ BSH</strong>
                     </div>
                   </div>
                 </div>
 
                 {/* Pilar Menulis */}
-                <div className="rounded-2xl border border-pink-200 overflow-hidden">
-                  <div className="bg-pastelPink-500 text-white px-3 py-1.5 font-bold text-xs flex justify-between items-center">
-                    <span>✍️ B. Aspek Motorik Halus & Menulis Rapi</span>
-                    <span className="text-[10px] bg-pink-600 px-2 py-0.5 rounded-full">Predikat: BSH</span>
+                <div className="rounded-lg border border-slateGray-200 overflow-hidden">
+                  <div className="bg-slateGray-100 border-b border-slateGray-200 px-3 py-1.5 font-bold text-xs text-navyInk-800 flex justify-between items-center">
+                    <span>B. Aspek Motorik Halus & Menulis Rapi</span>
+                    <span className="text-[10px] font-bold text-navyInk-700">Capaian: BSH</span>
                   </div>
-                  <div className="p-3 bg-pink-50/40 divide-y divide-pink-100 text-[11px] space-y-1.5">
+                  <div className="p-3 bg-white divide-y divide-slateGray-100 text-[11px] space-y-1.5">
                     <div className="flex justify-between items-center py-1">
-                      <span>1. Posisi memegang pensil (tripod grip) dengan nyaman</span>
-                      <strong className="text-blue-700">★★★☆ BSH</strong>
+                      <span className="text-slateGray-700">1. Posisi memegang pensil (tripod grip) dengan nyaman</span>
+                      <strong className="text-slateGray-600 font-mono">★★★☆ BSH</strong>
                     </div>
                     <div className="flex justify-between items-center py-1">
-                      <span>2. Menyalin kata pendek pada buku bergaris secara rapi</span>
-                      <strong className="text-blue-700">★★★☆ BSH</strong>
+                      <span className="text-slateGray-700">2. Menyalin kata pendek pada buku bergaris secara rapi</span>
+                      <strong className="text-slateGray-600 font-mono">★★★☆ BSH</strong>
                     </div>
                   </div>
                 </div>
 
                 {/* Pilar Berhitung */}
-                <div className="rounded-2xl border border-emerald-200 overflow-hidden">
-                  <div className="bg-emerald-600 text-white px-3 py-1.5 font-bold text-xs flex justify-between items-center">
-                    <span>🔢 C. Aspek Logika Angka & Berhitung Asyik</span>
-                    <span className="text-[10px] bg-emerald-700 px-2 py-0.5 rounded-full">Predikat: BSB</span>
+                <div className="rounded-lg border border-slateGray-200 overflow-hidden">
+                  <div className="bg-slateGray-100 border-b border-slateGray-200 px-3 py-1.5 font-bold text-xs text-navyInk-800 flex justify-between items-center">
+                    <span>C. Aspek Logika Bilangan & Berhitung</span>
+                    <span className="text-[10px] font-bold text-navyInk-700">Capaian: BSB</span>
                   </div>
-                  <div className="p-3 bg-emerald-50/40 divide-y divide-emerald-100 text-[11px] space-y-1.5">
+                  <div className="p-3 bg-white divide-y divide-slateGray-100 text-[11px] space-y-1.5">
                     <div className="flex justify-between items-center py-1">
-                      <span>1. Mengenal simbol angka 1-20 dan perbandingan jumlah</span>
-                      <strong className="text-emerald-700">★★★★ BSB</strong>
+                      <span className="text-slateGray-700">1. Mengenal simbol angka dan konsep perbandingan jumlah</span>
+                      <strong className="text-navyInk-700 font-mono">★★★★ BSB</strong>
                     </div>
                     <div className="flex justify-between items-center py-1">
-                      <span>2. Menghitung kuantitas benda konkret & penjumlahan dasar</span>
-                      <strong className="text-emerald-700">★★★★ BSB</strong>
+                      <span className="text-slateGray-700">2. Menghitung kuantitas benda konkret & penjumlahan dasar</span>
+                      <strong className="text-navyInk-700 font-mono">★★★★ BSB</strong>
                     </div>
                   </div>
                 </div>
@@ -791,52 +771,52 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
             {/* HALAMAN 3 PREVIEW: REKOMENDASI & PENGESAHAN */}
             {previewPage === 3 && (
               <div className="space-y-4 animate-in fade-in duration-200 text-xs">
-                <div className="flex items-center justify-between border-b border-slateNavy-100 pb-2">
-                  <h4 className="font-extrabold text-xs text-brand-800 uppercase tracking-wider">
-                    III. Rekomendasi di Rumah, Stempel & Tanda Tangan
+                <div className="flex items-center justify-between border-b border-slateGray-200 pb-2">
+                  <h4 className="font-bold text-xs text-navyInk-800 uppercase tracking-wider">
+                    III. Rekomendasi di Rumah, Stempel & Pengesahan
                   </h4>
-                  <Badge variant="green" size="sm">Halaman Pengesahan</Badge>
+                  <span className="text-[10px] text-slateGray-500 font-mono">Lembar Pengesahan</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-[11px]">
-                  <strong className="text-emerald-800 block mb-1">🌟 Karakter Unggul Ananda:</strong>
-                  <p className="text-slateNavy-700">{studentStrengths}</p>
+                <div className="p-3 rounded-lg border border-slateGray-200 bg-slateGray-50 text-[11px]">
+                  <strong className="text-navyInk-800 block mb-1">Karakter & Sikap Unggul Ananda:</strong>
+                  <p className="text-slateGray-700 leading-relaxed">{studentStrengths}</p>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-[11px]">
-                  <strong className="text-amber-800 block mb-1">💡 Fokus yang Terus Dilatih:</strong>
-                  <p className="text-slateNavy-700">{focusAreas}</p>
+                <div className="p-3 rounded-lg border border-slateGray-200 bg-slateGray-50 text-[11px]">
+                  <strong className="text-navyInk-800 block mb-1">Fokus yang Terus Dilatih Bersama:</strong>
+                  <p className="text-slateGray-700 leading-relaxed">{focusAreas}</p>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-pink-50/80 border border-pink-200 text-[11px]">
-                  <strong className="text-pastelPink-700 block mb-1">🏡 Ide Bermain 10 Menit di Rumah:</strong>
-                  <p className="text-slateNavy-700 whitespace-pre-line">{homeTips}</p>
+                <div className="p-3 rounded-lg border border-slateGray-200 bg-slateGray-50 text-[11px]">
+                  <strong className="text-navyInk-800 block mb-1">Ide Stimulasi Santai di Rumah (10 Menit):</strong>
+                  <p className="text-slateGray-700 whitespace-pre-line leading-relaxed">{homeTips}</p>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-[11px]">
-                  <strong className="text-brand-800 block mb-1">🎯 Target Pembelajaran Bulan Depan:</strong>
-                  <p className="text-slateNavy-700">{nextTargets}</p>
+                <div className="p-3 rounded-lg border border-slateGray-200 bg-slateGray-50 text-[11px]">
+                  <strong className="text-navyInk-800 block mb-1">Target Pembelajaran Bulan Depan:</strong>
+                  <p className="text-slateGray-700 leading-relaxed">{nextTargets}</p>
                 </div>
 
-                {/* Stempel & Tanda Tangan Mock */}
-                <div className="pt-4 border-t border-slateNavy-200 flex items-center justify-between text-[11px]">
+                {/* Stempel & Tanda Tangan Resmi */}
+                <div className="pt-4 border-t border-slateGray-200 flex items-center justify-between text-[11px]">
                   <div className="text-center w-36">
-                    <p className="text-slateNavy-500">Wali Murid,</p>
-                    <div className="h-12" />
-                    <p className="font-bold text-slateNavy-800">( {selectedStudent?.parent?.full_name || 'Ayah / Bunda'} )</p>
+                    <p className="text-slateGray-500 text-[10px]">Wali Murid,</p>
+                    <div className="h-10" />
+                    <p className="font-semibold text-slateGray-800">( {selectedStudent?.parent?.full_name || 'Ayah / Bunda'} )</p>
                   </div>
 
                   {/* Stamp Center */}
-                  <div className="w-16 h-16 rounded-full border-2 border-brand-500 text-brand-700 flex flex-col items-center justify-center text-[7px] font-bold p-1 text-center rotate-[-6deg]">
+                  <div className="w-16 h-16 rounded-full border-2 border-navyInk-700 text-navyInk-700 flex flex-col items-center justify-center text-[7px] font-bold p-1 text-center rotate-[-4deg]">
                     <span>SYAFA COURSE</span>
-                    <span className="text-[6px] text-pink-600">★ RESMI ★</span>
-                    <span>RAPOR BULANAN</span>
+                    <span className="text-[6px] tracking-wider text-slateGray-600">RAPOR RESMI</span>
+                    <span>CALISTUNG</span>
                   </div>
 
                   <div className="text-center w-36">
-                    <p className="text-slateNavy-500">Tutor Pembimbing,</p>
-                    <div className="h-12" />
-                    <p className="font-bold text-brand-700">( {currentTutor?.full_name || 'Tutor Syafa'} )</p>
+                    <p className="text-slateGray-500 text-[10px]">Tutor Pembimbing,</p>
+                    <div className="h-10" />
+                    <p className="font-semibold text-navyInk-800">( {currentTutor?.full_name || 'Tutor Syafa'} )</p>
                   </div>
                 </div>
               </div>
@@ -846,28 +826,28 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
       </div>
 
       {/* Generated Reports History & WhatsApp Delivery Log */}
-      <Card className="p-5 space-y-4 shadow-sm border border-slateNavy-100">
-        <div className="flex items-center justify-between">
+      <div className="bg-white rounded-lg border border-slateGray-200 p-5 space-y-4 shadow-xs">
+        <div className="flex items-center justify-between border-b border-slateGray-100 pb-3">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-emerald-600" />
-            <h2 className="text-base font-bold text-slateNavy-900">
+            <MessageSquare className="w-4 h-4 text-navyInk-700" />
+            <h2 className="text-sm font-bold text-navyInk-800">
               Riwayat Rapor Bulanan & Pengiriman ke Wali Murid
             </h2>
           </div>
-          <span className="text-xs text-slateNavy-500">
+          <span className="text-xs text-slateGray-500">
             Total {reports.length} rapor diterbitkan
           </span>
         </div>
 
         {reports.length === 0 ? (
-          <div className="text-center py-8 bg-cream-50/60 rounded-2xl border border-dashed border-slateNavy-200 text-xs text-slateNavy-500 space-y-2">
-            <p className="font-medium">Belum ada rapor bulanan yang disimpan.</p>
-            <p className="text-slateNavy-400">
+          <div className="text-center py-8 bg-slateGray-50 rounded-lg border border-dashed border-slateGray-200 text-xs text-slateGray-500 space-y-1.5">
+            <p className="font-semibold text-slateGray-700">Belum ada rapor bulanan yang disimpan.</p>
+            <p className="text-slateGray-400">
               Pilih siswa dan bulan di atas, lalu klik <strong>"Terbitkan Rapor Bulanan"</strong>.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slateNavy-100">
+          <div className="divide-y divide-slateGray-100">
             {reports.map((rep) => {
               const student = myStudents.find((s) => s.id === rep.student_id);
               const latestLog = rep.delivery_logs?.[0];
@@ -943,52 +923,52 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
             })}
           </div>
         )}
-      </Card>
+      </div>
 
       {/* WhatsApp Dispatch Modal */}
       <Modal
         isOpen={isWhatsAppModalOpen}
         onClose={() => setIsWhatsAppModalOpen(false)}
         title="Kirimkan Rapor Bulanan ke Orang Tua via WhatsApp"
-        description="Hubungkan langsung dengan wali murid melalui pesan WhatsApp yang hangat dan santun."
+        description="Hubungkan langsung dengan wali murid melalui pesan WhatsApp yang santun dan apresiatif."
         maxWidth="lg"
       >
         <div className="space-y-4">
-          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
-            <div className="font-bold flex items-center gap-1.5 text-emerald-800">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Panduan Mudah Pengiriman Rapor PDF:</span>
+          <div className="p-3.5 rounded-lg bg-slateGray-50 border border-slateGray-200 text-xs text-navyInk-900 space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-navyInk-800">
+              <CheckCircle2 className="w-4 h-4 text-deepSage" />
+              <span>Panduan Pengiriman Rapor PDF:</span>
             </div>
-            <p className="text-emerald-800 text-[11px] leading-relaxed">
-              1. Pastikan Anda telah mengunduh file PDF rapor ke perangkat (ponsel/laptop).<br />
-              2. Klik tombol <strong>"Buka WhatsApp Orang Tua"</strong> di bawah untuk membuka ruang obrolan langsung dengan draf pesan pengantar yang telah terisi rapi.<br />
-              3. Di dalam WhatsApp, pilih tombol <strong>Lampirkan Dokumen (Paperclip)</strong>, pilih file PDF rapor yang baru diunduh, lalu kirimkan.
+            <p className="text-slateGray-600 text-[11px] leading-relaxed">
+              1. Pastikan Anda telah mengunduh file PDF rapor ke perangkat Anda.<br />
+              2. Klik tombol <strong>"Buka WhatsApp Orang Tua"</strong> di bawah untuk membuka ruang obrolan dengan draf pesan pengantar yang telah terisi rapi.<br />
+              3. Di dalam WhatsApp, pilih tombol <strong>Lampirkan Dokumen (Paperclip)</strong>, pilih file PDF rapor, lalu kirimkan.
             </p>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slateNavy-700">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slateGray-600">
               Nomor WhatsApp Wali Murid
             </label>
-            <div className="flex items-center justify-between p-2.5 rounded-xl border border-slateNavy-200 bg-cream-50 text-xs font-mono text-slateNavy-900">
+            <div className="flex items-center justify-between p-2.5 rounded-lg border border-slateGray-200 bg-slateGray-50 text-xs font-mono text-navyInk-900">
               <span>+{intlPhone}</span>
-              <span className="text-slateNavy-500 font-sans font-medium">({parentName})</span>
+              <span className="text-slateGray-500 font-sans font-medium">({parentName})</span>
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slateNavy-700">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slateGray-600">
               Pratinjau Pesan Pengantar WhatsApp
             </label>
             <textarea
               rows={8}
               readOnly
-              className="w-full rounded-xl border border-slateNavy-200 bg-white p-3 text-xs text-slateNavy-800 focus:outline-none font-sans leading-relaxed"
+              className="w-full rounded-lg border border-slateGray-200 bg-white p-3 text-xs text-slateGray-800 focus:outline-none font-sans leading-relaxed"
               value={whatsappMessage}
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slateNavy-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slateGray-200">
             <Button
               variant="outline"
               size="sm"

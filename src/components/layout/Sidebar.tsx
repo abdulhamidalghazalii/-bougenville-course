@@ -40,16 +40,16 @@ export const Sidebar: React.FC = () => {
   const navItems = isAdmin ? adminNavItems : tutorNavItems;
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white border-r border-slateNavy-100 min-h-[calc(100vh-4rem)] p-4">
+    <aside className="hidden md:flex flex-col w-64 bg-white border-r border-slateGray-200 min-h-[calc(100vh-4rem)] p-4">
       {/* Role Notice Card */}
-      <div className={`p-3.5 rounded-2xl mb-4 border ${isAdmin ? 'bg-purple-50/70 border-purple-100 text-purple-900' : 'bg-brand-50/70 border-brand-100 text-brand-900'}`}>
+      <div className={`p-3 rounded-lg mb-4 border ${isAdmin ? 'bg-slateGray-100 border-slateGray-200 text-slateGray-800' : 'bg-slateGray-50 border-slateGray-200 text-navyInk-800'}`}>
         <div className="flex items-center gap-2">
-          {isAdmin ? <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" /> : <Sparkles className="w-4 h-4 text-brand-600 shrink-0" />}
-          <span className="text-xs font-bold uppercase tracking-wider">
+          {isAdmin ? <ShieldCheck className="w-4 h-4 text-slateGray-600 shrink-0" /> : <Sparkles className="w-4 h-4 text-navyInk-600 shrink-0" />}
+          <span className="text-xs font-bold uppercase tracking-wider text-navyInk-800">
             {isAdmin ? 'Portal Admin' : 'Portal Tutor'}
           </span>
         </div>
-        <p className="text-[11px] mt-1 text-slateNavy-600 line-clamp-2">
+        <p className="text-[11px] mt-1 text-slateGray-500 line-clamp-2">
           {isAdmin
             ? 'Pengelolaan kredensial akun tutor dan hak akses sistem.'
             : 'Pengelolaan operasional les & evaluasi calistung anak.'}
@@ -57,7 +57,7 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Nav Links */}
-      <nav className="space-y-1.5 flex-1">
+      <nav className="space-y-1 flex-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -66,10 +66,10 @@ export const Sidebar: React.FC = () => {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                `flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
                   isActive
-                    ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/25'
-                    : 'text-slateNavy-600 hover:bg-cream-100 hover:text-slateNavy-900'
+                    ? 'bg-navyInk-700 text-white shadow-xs'
+                    : 'text-slateGray-600 hover:bg-slateGray-100 hover:text-navyInk-900'
                 }`
               }
             >

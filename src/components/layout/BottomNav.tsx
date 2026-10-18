@@ -33,7 +33,7 @@ export const BottomNav: React.FC = () => {
   const items = isAdmin ? adminItems : tutorItems;
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slateNavy-100 px-2 py-1.5 safe-area-pb shadow-lg">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slateGray-200 px-2 py-1.5 safe-area-pb shadow-lg">
       <div className="flex items-center justify-around">
         {items.map((item) => {
           const Icon = item.icon;
@@ -43,8 +43,8 @@ export const BottomNav: React.FC = () => {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all ${
-                  isActive ? 'text-brand-600 font-bold' : 'text-slateNavy-500 hover:text-slateNavy-800'
+                `flex flex-col items-center justify-center py-1 px-2 rounded-lg transition-all ${
+                  isActive ? 'text-navyInk-700 font-bold' : 'text-slateGray-500 hover:text-navyInk-900'
                 }`
               }
             >
