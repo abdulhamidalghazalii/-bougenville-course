@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from './supabase';
 import {
   Profile,
   Student,
@@ -58,16 +59,31 @@ function loadData<T>(key: string, defaultValue: T): T {
   }
 }
 
+async function syncToSupabase(key: string, data: any) {
+  if (!supabase || !isSupabaseConfigured || key === STORAGE_KEYS.CURRENT_USER) return;
+  try {
+    await supabase.from('syafa_store').upsert({
+      key,
+      data,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.warn(`[Supabase Sync] Failed to sync ${key}:`, err);
+  }
+}
+
 function saveData<T>(key: string, data: T) {
   try {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (err) {
     console.error(`Error saving ${key}:`, err);
   }
+  syncToSupabase(key, data);
 }
 
 class AppStore {
   private listeners: Set<() => void> = new Set();
+  private isRemoteSyncing = false;
 
   currentUser: Profile | null = null;
   accounts: UserAccount[] = [];
@@ -83,6 +99,8 @@ class AppStore {
 
   constructor() {
     this.initialize();
+    this.syncFromSupabase();
+    this.setupRealtime();
   }
 
   initialize() {
@@ -161,6 +179,102 @@ class AppStore {
 
   private notify() {
     this.listeners.forEach((listener) => listener());
+  }
+
+  // SUPABASE CLOUD SYNCHRONIZATION
+  private handleRemoteUpdate(key: string, val: any) {
+    if (val === undefined || val === null || key === STORAGE_KEYS.CURRENT_USER) return;
+    try {
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch {
+      // ignore
+    }
+
+    if (key === STORAGE_KEYS.ACCOUNTS && Array.isArray(val)) {
+      this.accounts = val;
+    } else if (key === STORAGE_KEYS.STUDENTS && Array.isArray(val)) {
+      this.students = val;
+    } else if (key === STORAGE_KEYS.PARENTS && Array.isArray(val)) {
+      this.parents = val;
+    } else if (key === STORAGE_KEYS.PROGRAMS && Array.isArray(val)) {
+      this.programs = val;
+    } else if (key === STORAGE_KEYS.INDICATORS && Array.isArray(val)) {
+      this.indicators = val;
+    } else if (key === STORAGE_KEYS.SCHEDULES && Array.isArray(val)) {
+      this.schedules = val;
+    } else if (key === STORAGE_KEYS.ATTENDANCES && Array.isArray(val)) {
+      this.attendances = val;
+    } else if (key === STORAGE_KEYS.SESSIONS && Array.isArray(val)) {
+      this.sessions = val;
+    } else if (key === STORAGE_KEYS.REPORTS && Array.isArray(val)) {
+      this.reports = val;
+    } else if (key === STORAGE_KEYS.AUDIT_LOGS && Array.isArray(val)) {
+      this.auditLogs = val;
+    }
+    this.notify();
+  }
+
+  async syncFromSupabase() {
+    if (!supabase || !isSupabaseConfigured) return;
+    try {
+      this.isRemoteSyncing = true;
+      const { data, error } = await supabase.from('syafa_store').select('*');
+      if (error) {
+        return;
+      }
+      if (data && data.length > 0) {
+        data.forEach((row: { key: string; data: any }) => {
+          this.handleRemoteUpdate(row.key, row.data);
+        });
+      } else {
+        // Table exists but empty, push current seed data
+        this.pushAllToSupabase();
+      }
+    } catch (err) {
+      console.warn('[Supabase Sync] Sync error:', err);
+    } finally {
+      this.isRemoteSyncing = false;
+    }
+  }
+
+  async pushAllToSupabase() {
+    if (!supabase || !isSupabaseConfigured) return;
+    const items = [
+      { key: STORAGE_KEYS.ACCOUNTS, data: this.accounts },
+      { key: STORAGE_KEYS.STUDENTS, data: this.students },
+      { key: STORAGE_KEYS.PARENTS, data: this.parents },
+      { key: STORAGE_KEYS.PROGRAMS, data: this.programs },
+      { key: STORAGE_KEYS.INDICATORS, data: this.indicators },
+      { key: STORAGE_KEYS.SCHEDULES, data: this.schedules },
+      { key: STORAGE_KEYS.ATTENDANCES, data: this.attendances },
+      { key: STORAGE_KEYS.SESSIONS, data: this.sessions },
+      { key: STORAGE_KEYS.REPORTS, data: this.reports },
+      { key: STORAGE_KEYS.AUDIT_LOGS, data: this.auditLogs },
+    ];
+    for (const item of items) {
+      await syncToSupabase(item.key, item.data);
+    }
+  }
+
+  private setupRealtime() {
+    if (!supabase || !isSupabaseConfigured) return;
+    try {
+      supabase
+        .channel('public:syafa_store')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'syafa_store' },
+          (payload) => {
+            const newRow = payload.new as { key: string; data: any } | null;
+            if (newRow && newRow.key) {
+              this.handleRemoteUpdate(newRow.key, newRow.data);
+            }
+          }
+        )
+        .subscribe();
+    } catch (err) {
+      console.warn('[Supabase Realtime] Setup error:', err);
+    }
   }
 
   // AUTHENTICATION: REGISTER FIRST ADMIN
