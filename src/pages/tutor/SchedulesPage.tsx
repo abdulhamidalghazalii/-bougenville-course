@@ -294,18 +294,31 @@ export const SchedulesPage: React.FC = () => {
             <label className="block text-xs font-semibold uppercase tracking-wider text-slateNavy-700">
               Pilih Siswa *
             </label>
-            <select
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-              className="w-full rounded-xl border border-slateNavy-200 bg-white px-3.5 py-2.5 text-sm text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400"
-              required
-            >
-              {myStudents.map((stu) => (
-                <option key={stu.id} value={stu.id}>
-                  {stu.full_name} ({stu.education_level})
-                </option>
-              ))}
-            </select>
+            {myStudents.length === 0 ? (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+                <span>Belum ada siswa terdaftar.</span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/tutor/students')}
+                  className="font-bold underline text-brand-600 hover:text-brand-800"
+                >
+                  Daftarkan Siswa
+                </button>
+              </div>
+            ) : (
+              <select
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+                className="w-full rounded-xl border border-slateNavy-200 bg-white px-3.5 py-2.5 text-sm text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                required
+              >
+                {myStudents.map((stu) => (
+                  <option key={stu.id} value={stu.id}>
+                    {stu.full_name} ({stu.education_level})
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="space-y-1.5">

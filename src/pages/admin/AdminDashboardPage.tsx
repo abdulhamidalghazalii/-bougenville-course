@@ -104,43 +104,53 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           <Card className="p-0 overflow-hidden">
-            <div className="divide-y divide-slateNavy-100">
-              {tutors.map((tutor) => (
-                <div
-                  key={tutor.id}
-                  className="p-4 sm:p-5 flex items-center justify-between hover:bg-cream-50/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-2xl bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">
-                      {tutor.full_name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slateNavy-900">{tutor.full_name}</span>
-                        <Badge variant={tutor.is_active ? 'green' : 'rose'} size="sm">
-                          {tutor.is_active ? 'Aktif' : 'Nonaktif'}
-                        </Badge>
+            {tutors.length === 0 ? (
+              <div className="p-8 text-center space-y-3">
+                <Users className="w-8 h-8 text-brand-400 mx-auto" />
+                <p className="text-xs text-slateNavy-500">Belum ada akun tutor yang dibuat.</p>
+                <Button variant="primary" size="sm" onClick={() => navigate('/admin/tutors')}>
+                  Tambah Akun Tutor Baru
+                </Button>
+              </div>
+            ) : (
+              <div className="divide-y divide-slateNavy-100">
+                {tutors.map((tutor) => (
+                  <div
+                    key={tutor.id}
+                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-cream-50/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-2xl bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">
+                        {tutor.full_name.charAt(0)}
                       </div>
-                      <div className="text-xs text-slateNavy-500 mt-0.5">{tutor.email}</div>
-                      {tutor.phone && <div className="text-[11px] text-slateNavy-400">WA: {tutor.phone}</div>}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-slateNavy-900">{tutor.full_name}</span>
+                          <Badge variant={tutor.is_active ? 'green' : 'rose'} size="sm">
+                            {tutor.is_active ? 'Aktif' : 'Nonaktif'}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-slateNavy-500 mt-0.5">{tutor.email}</div>
+                        {tutor.phone && <div className="text-[11px] text-slateNavy-400">WA: {tutor.phone}</div>}
+                      </div>
+                    </div>
+
+                    <div className="text-right text-xs">
+                      <span className="text-slateNavy-400 block text-[11px]">Login Terakhir</span>
+                      <span className="font-medium text-slateNavy-700">
+                        {tutor.last_sign_in_at
+                          ? new Date(tutor.last_sign_in_at).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })
+                          : 'Belum pernah'}
+                      </span>
                     </div>
                   </div>
-
-                  <div className="text-right text-xs">
-                    <span className="text-slateNavy-400 block text-[11px]">Login Terakhir</span>
-                    <span className="font-medium text-slateNavy-700">
-                      {tutor.last_sign_in_at
-                        ? new Date(tutor.last_sign_in_at).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })
-                        : 'Belum pernah'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
 

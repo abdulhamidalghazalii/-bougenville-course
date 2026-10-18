@@ -13,32 +13,24 @@ import {
   AssessmentLevel,
   StudentAssessment,
 } from '../types';
-import {
-  MOCK_ADMIN,
-  MOCK_TUTORS,
-  MOCK_STUDENTS,
-  MOCK_PARENTS,
-  MOCK_PROGRAMS,
-  MOCK_INDICATORS,
-  MOCK_SCHEDULES,
-  MOCK_ATTENDANCES,
-  MOCK_SESSIONS,
-  MOCK_REPORTS,
-  MOCK_AUDIT_LOGS,
-} from '../data/mockData';
+import { MOCK_PROGRAMS, MOCK_INDICATORS } from '../data/mockData';
+
+export interface UserAccount extends Profile {
+  passwordHash: string; // Stored hash/credential for local authentication
+}
 
 const STORAGE_KEYS = {
-  CURRENT_USER: 'syafa_current_user',
-  TUTORS: 'syafa_tutors',
-  STUDENTS: 'syafa_students',
-  PARENTS: 'syafa_parents',
-  PROGRAMS: 'syafa_programs',
-  INDICATORS: 'syafa_indicators',
-  SCHEDULES: 'syafa_schedules',
-  ATTENDANCES: 'syafa_attendances',
-  SESSIONS: 'syafa_sessions',
-  REPORTS: 'syafa_reports',
-  AUDIT_LOGS: 'syafa_audit_logs',
+  CURRENT_USER: 'syafa_prod_current_user',
+  ACCOUNTS: 'syafa_prod_accounts',
+  STUDENTS: 'syafa_prod_students',
+  PARENTS: 'syafa_prod_parents',
+  PROGRAMS: 'syafa_prod_programs',
+  INDICATORS: 'syafa_prod_indicators',
+  SCHEDULES: 'syafa_prod_schedules',
+  ATTENDANCES: 'syafa_prod_attendances',
+  SESSIONS: 'syafa_prod_sessions',
+  REPORTS: 'syafa_prod_reports',
+  AUDIT_LOGS: 'syafa_prod_audit_logs',
 };
 
 // Helper for localStorage with default fallback
@@ -65,7 +57,7 @@ class AppStore {
   private listeners: Set<() => void> = new Set();
 
   currentUser: Profile | null = null;
-  tutors: Profile[] = [];
+  accounts: UserAccount[] = [];
   students: Student[] = [];
   parents: Parent[] = [];
   programs: Program[] = [];
@@ -81,26 +73,27 @@ class AppStore {
   }
 
   initialize() {
-    // Default logged in user is Tutor Aisyah (so tutor features are immediately visible), or saved user
-    const savedUser = loadData<Profile | null>(STORAGE_KEYS.CURRENT_USER, null);
-    this.currentUser = savedUser || MOCK_TUTORS[0];
-
-    this.tutors = loadData<Profile[]>(STORAGE_KEYS.TUTORS, MOCK_TUTORS);
-    this.students = loadData<Student[]>(STORAGE_KEYS.STUDENTS, MOCK_STUDENTS);
-    this.parents = loadData<Parent[]>(STORAGE_KEYS.PARENTS, MOCK_PARENTS);
+    this.currentUser = loadData<Profile | null>(STORAGE_KEYS.CURRENT_USER, null);
+    this.accounts = loadData<UserAccount[]>(STORAGE_KEYS.ACCOUNTS, []);
+    this.students = loadData<Student[]>(STORAGE_KEYS.STUDENTS, []);
+    this.parents = loadData<Parent[]>(STORAGE_KEYS.PARENTS, []);
     this.programs = loadData<Program[]>(STORAGE_KEYS.PROGRAMS, MOCK_PROGRAMS);
     this.indicators = loadData<LearningIndicator[]>(STORAGE_KEYS.INDICATORS, MOCK_INDICATORS);
-    this.schedules = loadData<Schedule[]>(STORAGE_KEYS.SCHEDULES, MOCK_SCHEDULES);
-    this.attendances = loadData<Attendance[]>(STORAGE_KEYS.ATTENDANCES, MOCK_ATTENDANCES);
-    this.sessions = loadData<LearningSession[]>(STORAGE_KEYS.SESSIONS, MOCK_SESSIONS);
-    this.reports = loadData<LearningReport[]>(STORAGE_KEYS.REPORTS, MOCK_REPORTS);
-    this.auditLogs = loadData<AuditLog[]>(STORAGE_KEYS.AUDIT_LOGS, MOCK_AUDIT_LOGS);
+    this.schedules = loadData<Schedule[]>(STORAGE_KEYS.SCHEDULES, []);
+    this.attendances = loadData<Attendance[]>(STORAGE_KEYS.ATTENDANCES, []);
+    this.sessions = loadData<LearningSession[]>(STORAGE_KEYS.SESSIONS, []);
+    this.reports = loadData<LearningReport[]>(STORAGE_KEYS.REPORTS, []);
+    this.auditLogs = loadData<AuditLog[]>(STORAGE_KEYS.AUDIT_LOGS, []);
   }
 
-  resetToDefault() {
-    localStorage.clear();
-    this.initialize();
-    this.notify();
+  get tutors(): Profile[] {
+    return this.accounts
+      .filter((a) => a.role === 'tutor')
+      .map(({ passwordHash, ...profile }) => profile);
+  }
+
+  hasAdminAccount(): boolean {
+    return this.accounts.some((a) => a.role === 'admin');
   }
 
   subscribe(listener: () => void) {
@@ -114,24 +107,72 @@ class AppStore {
     this.listeners.forEach((listener) => listener());
   }
 
-  // AUTH METHODS
+  // AUTHENTICATION: REGISTER FIRST ADMIN
+  registerFirstAdmin(data: {
+    full_name: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }): { success: boolean; message: string; user?: Profile } {
+    if (this.hasAdminAccount()) {
+      return { success: false, message: 'Akun Administrator utama sudah terdaftar di sistem.' };
+    }
+
+    const newAdmin: UserAccount = {
+      id: 'usr-admin-' + Date.now(),
+      email: data.email.trim().toLowerCase(),
+      full_name: data.full_name.trim(),
+      role: 'admin',
+      phone: data.phone?.trim() || '',
+      is_active: true,
+      last_sign_in_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      passwordHash: btoa(data.password), // Base64 encoding for local credential check
+    };
+
+    this.accounts = [newAdmin, ...this.accounts];
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
+    this.setCurrentUser(newAdmin);
+    this.logAudit('REGISTER_FIRST_ADMIN', 'profile', newAdmin.id, { email: newAdmin.email });
+    return { success: true, message: 'Akun Administrator utama berhasil dibuat.', user: newAdmin };
+  }
+
+  // AUTHENTICATION: LOGIN
+  login(email: string, password: string): { success: boolean; message: string; user?: Profile } {
+    const cleanEmail = email.trim().toLowerCase();
+    const account = this.accounts.find((a) => a.email.toLowerCase() === cleanEmail);
+
+    if (!account) {
+      return { success: false, message: 'Email tidak ditemukan dalam sistem.' };
+    }
+
+    if (account.passwordHash !== btoa(password)) {
+      return { success: false, message: 'Kata sandi yang Anda masukkan salah.' };
+    }
+
+    if (!account.is_active) {
+      return {
+        success: false,
+        message: 'Akses ditolak: Akun Anda sedang dinonaktifkan oleh Administrator.',
+      };
+    }
+
+    // Update last sign in
+    account.last_sign_in_at = new Date().toISOString();
+    this.accounts = this.accounts.map((a) => (a.id === account.id ? account : a));
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
+
+    const { passwordHash, ...profile } = account;
+    this.setCurrentUser(profile);
+    this.logAudit('USER_LOGIN', 'profile', profile.id, { email: profile.email, role: profile.role });
+    return { success: true, message: 'Berhasil masuk.', user: profile };
+  }
+
   setCurrentUser(user: Profile | null) {
     this.currentUser = user;
     saveData(STORAGE_KEYS.CURRENT_USER, user);
     this.notify();
-  }
-
-  switchRole(role: 'admin' | 'tutor', specificTutorId?: string) {
-    if (role === 'admin') {
-      this.setCurrentUser(MOCK_ADMIN);
-      this.logAudit('SWITCH_ROLE', 'profile', MOCK_ADMIN.id, { role: 'admin' });
-    } else {
-      const tutor = specificTutorId 
-        ? this.tutors.find((t) => t.id === specificTutorId) || this.tutors[0]
-        : this.tutors[0];
-      this.setCurrentUser(tutor);
-      this.logAudit('SWITCH_ROLE', 'profile', tutor.id, { role: 'tutor' });
-    }
   }
 
   logout() {
@@ -155,45 +196,57 @@ class AppStore {
     this.notify();
   }
 
-  // ADMIN METHODS: TUTOR MANAGEMENT
-  createTutor(data: { full_name: string; email: string; phone?: string }): { success: boolean; message: string } {
+  // ADMIN METHODS: CREATE REAL TUTOR ACCOUNT
+  createTutor(data: {
+    full_name: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }): { success: boolean; message: string } {
     if (this.currentUser?.role !== 'admin') {
       return { success: false, message: 'Akses ditolak: Hanya admin yang dapat membuat akun tutor.' };
     }
 
-    const existing = this.tutors.find((t) => t.email.toLowerCase() === data.email.toLowerCase());
+    const cleanEmail = data.email.trim().toLowerCase();
+    const existing = this.accounts.find((a) => a.email.toLowerCase() === cleanEmail);
     if (existing) {
-      return { success: false, message: 'Email tutor sudah terdaftar di sistem.' };
+      return { success: false, message: 'Alamat email tutor sudah terdaftar di sistem.' };
     }
 
-    const newTutor: Profile = {
+    const newTutor: UserAccount = {
       id: 'usr-tutor-' + Date.now(),
-      email: data.email,
-      full_name: data.full_name,
+      email: cleanEmail,
+      full_name: data.full_name.trim(),
       role: 'tutor',
-      phone: data.phone || '',
+      phone: data.phone?.trim() || '',
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      passwordHash: btoa(data.password),
     };
 
-    this.tutors = [newTutor, ...this.tutors];
-    saveData(STORAGE_KEYS.TUTORS, this.tutors);
-    this.logAudit('CREATE_TUTOR_ACCOUNT', 'profile', newTutor.id, { email: data.email, name: data.full_name });
+    this.accounts = [newTutor, ...this.accounts];
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
+    this.logAudit('CREATE_TUTOR_ACCOUNT', 'profile', newTutor.id, {
+      email: cleanEmail,
+      name: newTutor.full_name,
+    });
     this.notify();
-    return { success: true, message: `Akun tutor ${data.full_name} berhasil dibuat.` };
+    return { success: true, message: `Akun tutor ${data.full_name} berhasil dibuat dan siap digunakan login.` };
   }
 
-  updateTutor(id: string, updates: Partial<Profile>): { success: boolean; message: string } {
+  updateTutor(id: string, updates: Partial<UserAccount>): { success: boolean; message: string } {
     if (this.currentUser?.role !== 'admin') {
       return { success: false, message: 'Akses ditolak: Hanya admin yang dapat mengubah akun tutor.' };
     }
 
-    this.tutors = this.tutors.map((t) => (t.id === id ? { ...t, ...updates, updated_at: new Date().toISOString() } : t));
-    saveData(STORAGE_KEYS.TUTORS, this.tutors);
+    this.accounts = this.accounts.map((a) =>
+      a.id === id ? { ...a, ...updates, updated_at: new Date().toISOString() } : a
+    );
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
     this.logAudit('UPDATE_TUTOR_ACCOUNT', 'profile', id, updates);
     this.notify();
-    return { success: true, message: 'Informasi tutor berhasil diperbarui.' };
+    return { success: true, message: 'Informasi akun tutor berhasil diperbarui.' };
   }
 
   toggleTutorActive(id: string): { success: boolean; message: string } {
@@ -202,15 +255,15 @@ class AppStore {
     }
 
     let newState = true;
-    this.tutors = this.tutors.map((t) => {
-      if (t.id === id) {
-        newState = !t.is_active;
-        return { ...t, is_active: newState, updated_at: new Date().toISOString() };
+    this.accounts = this.accounts.map((a) => {
+      if (a.id === id) {
+        newState = !a.is_active;
+        return { ...a, is_active: newState, updated_at: new Date().toISOString() };
       }
-      return t;
+      return a;
     });
 
-    saveData(STORAGE_KEYS.TUTORS, this.tutors);
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
     this.logAudit(newState ? 'ACTIVATE_TUTOR_ACCOUNT' : 'DEACTIVATE_TUTOR_ACCOUNT', 'profile', id);
     this.notify();
     return {
@@ -219,22 +272,29 @@ class AppStore {
     };
   }
 
-  sendResetPassword(id: string): { success: boolean; message: string } {
+  resetTutorPassword(id: string, newPassword: string): { success: boolean; message: string } {
     if (this.currentUser?.role !== 'admin') {
-      return { success: false, message: 'Akses ditolak: Hanya admin yang dapat mengirim reset password.' };
+      return { success: false, message: 'Akses ditolak: Hanya admin yang dapat mereset kata sandi tutor.' };
     }
 
-    const tutor = this.tutors.find((t) => t.id === id);
+    const tutor = this.accounts.find((a) => a.id === id);
     if (!tutor) return { success: false, message: 'Tutor tidak ditemukan.' };
 
-    this.logAudit('SEND_PASSWORD_RESET', 'profile', id, { email: tutor.email });
+    this.accounts = this.accounts.map((a) =>
+      a.id === id
+        ? { ...a, passwordHash: btoa(newPassword), updated_at: new Date().toISOString() }
+        : a
+    );
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
+    this.logAudit('RESET_TUTOR_PASSWORD', 'profile', id, { email: tutor.email });
+    this.notify();
     return {
       success: true,
-      message: `Tautan reset password yang aman berhasil dikirim ke email ${tutor.email}.`,
+      message: `Kata sandi tutor ${tutor.full_name} berhasil diubah.`,
     };
   }
 
-  // TUTOR METHODS: STUDENTS CRUD (Filtered by current tutor)
+  // TUTOR METHODS: STUDENTS CRUD (Filtered by current logged-in tutor)
   getTutorStudents(): Student[] {
     if (this.currentUser?.role === 'admin') {
       // Per Section 4A: Admin must NOT see student operational data
@@ -260,7 +320,7 @@ class AppStore {
     parent_whatsapp: string;
     parent_relationship: 'Ayah' | 'Ibu' | 'Wali';
   }): Student {
-    const currentTutorId = this.currentUser?.id || 'usr-tutor-01';
+    const currentTutorId = this.currentUser?.id || 'usr-default';
     const newParentId = 'par-' + Date.now();
     const newStudentId = 'stu-' + Date.now();
     const studentCode = `SYF-${new Date().getFullYear()}-${String(this.students.length + 1).padStart(3, '0')}`;
@@ -357,7 +417,7 @@ class AppStore {
     location: string;
     notes?: string;
   }): Schedule {
-    const currentTutorId = this.currentUser?.id || 'usr-tutor-01';
+    const currentTutorId = this.currentUser?.id || 'usr-default';
     const newSchedule: Schedule = {
       id: 'sch-' + Date.now(),
       tutor_id: currentTutorId,
@@ -393,7 +453,7 @@ class AppStore {
     notes?: string;
     date?: string;
   }): Attendance {
-    const currentTutorId = this.currentUser?.id || 'usr-tutor-01';
+    const currentTutorId = this.currentUser?.id || 'usr-default';
     const newAtt: Attendance = {
       id: 'att-' + Date.now(),
       schedule_id: data.schedule_id,
@@ -405,7 +465,6 @@ class AppStore {
       created_at: new Date().toISOString(),
     };
 
-    // If linked to schedule, mark schedule completed
     if (data.schedule_id) {
       this.updateScheduleStatus(data.schedule_id, 'completed');
     }
@@ -444,7 +503,7 @@ class AppStore {
     sessionData: Omit<LearningSession, 'id' | 'tutor_id' | 'created_at' | 'updated_at'>,
     sessionId?: string
   ): LearningSession {
-    const currentTutorId = this.currentUser?.id || 'usr-tutor-01';
+    const currentTutorId = this.currentUser?.id || 'usr-default';
     const isNew = !sessionId;
     const now = new Date().toISOString();
 
@@ -496,7 +555,7 @@ class AppStore {
   }
 
   saveReport(report: Omit<LearningReport, 'id' | 'tutor_id' | 'created_at' | 'updated_at'>): LearningReport {
-    const currentTutorId = this.currentUser?.id || 'usr-tutor-01';
+    const currentTutorId = this.currentUser?.id || 'usr-default';
     const now = new Date().toISOString();
     const newReport: LearningReport = {
       ...report,
@@ -514,7 +573,7 @@ class AppStore {
   }
 
   logReportDelivery(report_id: string, channel: 'whatsapp' | 'email', status: 'prepared' | 'opened' | 'sent', notes?: string) {
-    const currentTutorId = this.currentUser?.id || 'usr-tutor-01';
+    const currentTutorId = this.currentUser?.id || 'usr-default';
     const now = new Date().toISOString();
 
     this.reports = this.reports.map((r) => {

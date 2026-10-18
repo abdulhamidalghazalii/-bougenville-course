@@ -327,30 +327,36 @@ export const TutorDashboardPage: React.FC = () => {
             </p>
 
             <div className="space-y-3">
-              {studentsNeedingPractice.slice(0, 3).map((stu) => (
-                <div
-                  key={stu.id}
-                  className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/80 text-xs space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slateNavy-900">{stu.full_name}</span>
-                    <Badge variant="amber" size="sm">
-                      {stu.education_level}
-                    </Badge>
+              {studentsNeedingPractice.length === 0 ? (
+                <p className="text-xs text-slateNavy-500 py-3 text-center bg-cream-50 rounded-xl">
+                  Semua siswa terpantau berkembang dengan baik.
+                </p>
+              ) : (
+                studentsNeedingPractice.slice(0, 3).map((stu) => (
+                  <div
+                    key={stu.id}
+                    className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/80 text-xs space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slateNavy-900">{stu.full_name}</span>
+                      <Badge variant="amber" size="sm">
+                        {stu.education_level}
+                      </Badge>
+                    </div>
+                    <p className="text-slateNavy-600 line-clamp-2 text-[11px]">
+                      {stu.learning_needs || 'Perlu pembiasaan pengenalan huruf dan latihan motorik halus di rumah.'}
+                    </p>
+                    <div className="pt-1.5 flex justify-end">
+                      <button
+                        onClick={() => navigate(`/tutor/students/${stu.id}`)}
+                        className="text-[11px] font-bold text-amber-800 hover:underline flex items-center gap-1"
+                      >
+                        Lihat Rincian <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-slateNavy-600 line-clamp-2 text-[11px]">
-                    {stu.learning_needs || 'Perlu pembiasaan pengenalan huruf dan latihan motorik halus di rumah.'}
-                  </p>
-                  <div className="pt-1.5 flex justify-end">
-                    <button
-                      onClick={() => navigate(`/tutor/students/${stu.id}`)}
-                      className="text-[11px] font-bold text-amber-800 hover:underline flex items-center gap-1"
-                    >
-                      Lihat Rincian <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </Card>
 
@@ -360,29 +366,35 @@ export const TutorDashboardPage: React.FC = () => {
               <Phone className="w-4 h-4 text-emerald-600" />
               <h2 className="text-sm font-bold text-slateNavy-900">Kontak Orang Tua Cepat</h2>
             </div>
-            <div className="space-y-2.5">
-              {myStudents.map((stu) => (
-                <div
-                  key={stu.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slateNavy-50 border border-slateNavy-100 text-xs"
-                >
-                  <div>
-                    <div className="font-bold text-slateNavy-800">{stu.parent?.full_name || 'Wali Siswa'}</div>
-                    <div className="text-[10px] text-slateNavy-500">Wali dari {stu.full_name}</div>
+            {myStudents.length === 0 ? (
+              <p className="text-xs text-slateNavy-500 py-3 text-center bg-cream-50 rounded-xl">
+                Belum ada kontak orang tua siswa tersimpan.
+              </p>
+            ) : (
+              <div className="space-y-2.5">
+                {myStudents.map((stu) => (
+                  <div
+                    key={stu.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slateNavy-50 border border-slateNavy-100 text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-slateNavy-800">{stu.parent?.full_name || 'Wali Siswa'}</div>
+                      <div className="text-[10px] text-slateNavy-500">Wali dari {stu.full_name}</div>
+                    </div>
+                    {stu.parent?.whatsapp_number && (
+                      <a
+                        href={`https://wa.me/${stu.parent.whatsapp_number.replace(/^0/, '62')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-[11px] flex items-center gap-1"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
                   </div>
-                  {stu.parent?.whatsapp_number && (
-                    <a
-                      href={`https://wa.me/${stu.parent.whatsapp_number.replace(/^0/, '62')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-[11px] flex items-center gap-1"
-                    >
-                      WhatsApp
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
       </div>

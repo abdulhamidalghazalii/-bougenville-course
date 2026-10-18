@@ -17,7 +17,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Clock,
-  ShieldAlert,
+  Lock,
 } from 'lucide-react';
 
 export const TutorsManagementPage: React.FC = () => {
@@ -30,12 +30,15 @@ export const TutorsManagementPage: React.FC = () => {
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState<Profile | null>(null);
 
   // Forms state
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('Syafa123!');
+  const [newPassword, setNewPassword] = useState('');
   const [formError, setFormError] = useState('');
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -60,8 +63,13 @@ export const TutorsManagementPage: React.FC = () => {
     e.preventDefault();
     setFormError('');
 
-    if (!fullName.trim() || !email.trim()) {
-      setFormError('Nama lengkap dan alamat email wajib diisi.');
+    if (!fullName.trim() || !email.trim() || !password) {
+      setFormError('Nama lengkap, email, dan kata sandi awal wajib diisi.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setFormError('Kata sandi awal minimal 6 karakter.');
       return;
     }
 
@@ -69,6 +77,7 @@ export const TutorsManagementPage: React.FC = () => {
       full_name: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
+      password: password,
     });
 
     if (res.success) {
@@ -76,6 +85,7 @@ export const TutorsManagementPage: React.FC = () => {
       setFullName('');
       setEmail('');
       setPhone('');
+      setPassword('Syafa123!');
       showToast(res.message, 'success');
     } else {
       setFormError(res.message);
@@ -117,9 +127,29 @@ export const TutorsManagementPage: React.FC = () => {
     showToast(res.message, res.success ? 'success' : 'error');
   };
 
-  const handleResetPassword = (tutor: Profile) => {
-    const res = store.sendResetPassword(tutor.id);
-    showToast(res.message, res.success ? 'success' : 'error');
+  const handleOpenReset = (tutor: Profile) => {
+    setSelectedTutor(tutor);
+    setNewPassword('');
+    setFormError('');
+    setIsResetPasswordOpen(true);
+  };
+
+  const handleSaveResetPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTutor) return;
+
+    if (newPassword.length < 6) {
+      setFormError('Kata sandi baru minimal harus 6 karakter.');
+      return;
+    }
+
+    const res = store.resetTutorPassword(selectedTutor.id, newPassword);
+    if (res.success) {
+      setIsResetPasswordOpen(false);
+      showToast(res.message, 'success');
+    } else {
+      setFormError(res.message);
+    }
   };
 
   return (
@@ -149,7 +179,7 @@ export const TutorsManagementPage: React.FC = () => {
             Manajemen Akun Tutor
           </h1>
           <p className="text-sm text-slateNavy-500 mt-1">
-            Buat akun tutor baru, kelola status aktif/nonaktif, dan kirimkan tautan reset kata sandi.
+            Buat akun tutor baru, kelola status aktif/nonaktif, dan atur kata sandi login tutor.
           </p>
         </div>
         <Button
@@ -159,6 +189,7 @@ export const TutorsManagementPage: React.FC = () => {
             setFullName('');
             setEmail('');
             setPhone('');
+            setPassword('Syafa123!');
             setFormError('');
             setIsCreateOpen(true);
           }}
@@ -199,94 +230,111 @@ export const TutorsManagementPage: React.FC = () => {
       </Card>
 
       {/* Tutor Cards List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTutors.map((tutor) => (
-          <Card key={tutor.id} className="p-5 flex flex-col justify-between" hoverEffect>
-            <div>
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-base shrink-0">
-                    {tutor.full_name.charAt(0)}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slateNavy-900 leading-tight">{tutor.full_name}</h3>
-                    <Badge variant={tutor.is_active ? 'green' : 'rose'} size="sm" className="mt-1">
-                      {tutor.is_active ? 'Akun Aktif' : 'Dinonaktifkan'}
-                    </Badge>
+      {filteredTutors.length === 0 ? (
+        <Card className="p-10 text-center space-y-3">
+          <UserPlus className="w-10 h-10 text-brand-400 mx-auto" />
+          <h3 className="font-bold text-slateNavy-800">Belum Ada Akun Tutor Terdaftar</h3>
+          <p className="text-xs text-slateNavy-500 max-w-sm mx-auto">
+            Klik tombol di bawah untuk mendaftarkan tutor pertama yang akan mengajar siswa les di Syafa Course.
+          </p>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setIsCreateOpen(true)}
+          >
+            Tambah Akun Tutor Sekarang
+          </Button>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredTutors.map((tutor) => (
+            <Card key={tutor.id} className="p-5 flex flex-col justify-between" hoverEffect>
+              <div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-base shrink-0">
+                      {tutor.full_name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-slateNavy-900 leading-tight">{tutor.full_name}</h3>
+                      <Badge variant={tutor.is_active ? 'green' : 'rose'} size="sm" className="mt-1">
+                        {tutor.is_active ? 'Akun Aktif' : 'Dinonaktifkan'}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-1.5 text-xs text-slateNavy-600 my-4 bg-cream-50/70 p-3 rounded-xl border border-slateNavy-100">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-slateNavy-400 shrink-0" />
-                  <span className="truncate">{tutor.email}</span>
-                </div>
-                {tutor.phone && (
+                <div className="space-y-1.5 text-xs text-slateNavy-600 my-4 bg-cream-50/70 p-3 rounded-xl border border-slateNavy-100">
                   <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-slateNavy-400 shrink-0" />
-                    <span>{tutor.phone}</span>
+                    <Mail className="w-3.5 h-3.5 text-slateNavy-400 shrink-0" />
+                    <span className="truncate">{tutor.email}</span>
                   </div>
-                )}
-                <div className="flex items-center gap-2 text-slateNavy-400 text-[11px] pt-1 border-t border-slateNavy-100">
-                  <Clock className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    Login:{' '}
-                    {tutor.last_sign_in_at
-                      ? new Date(tutor.last_sign_in_at).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })
-                      : 'Belum pernah'}
-                  </span>
+                  {tutor.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-slateNavy-400 shrink-0" />
+                      <span>{tutor.phone}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-slateNavy-400 text-[11px] pt-1 border-t border-slateNavy-100">
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      Login Terakhir:{' '}
+                      {tutor.last_sign_in_at
+                        ? new Date(tutor.last_sign_in_at).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                        : 'Belum pernah'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Actions Toolbar */}
-            <div className="pt-3 border-t border-slateNavy-100 flex items-center justify-between gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-                onClick={() => handleOpenEdit(tutor)}
-              >
-                Edit
-              </Button>
-
-              <div className="flex items-center gap-1.5">
+              {/* Actions Toolbar */}
+              <div className="pt-3 border-t border-slateNavy-100 flex items-center justify-between gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  title="Kirim tautan reset kata sandi resmi"
-                  leftIcon={<KeyRound className="w-3.5 h-3.5" />}
-                  onClick={() => handleResetPassword(tutor)}
+                  leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                  onClick={() => handleOpenEdit(tutor)}
                 >
-                  Reset
+                  Edit
                 </Button>
 
-                <Button
-                  variant={tutor.is_active ? 'danger' : 'success'}
-                  size="sm"
-                  title={tutor.is_active ? 'Nonaktifkan akun tutor' : 'Aktifkan akun tutor'}
-                  leftIcon={<Power className="w-3.5 h-3.5" />}
-                  onClick={() => handleToggleActive(tutor)}
-                >
-                  {tutor.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title="Atur ulang kata sandi tutor"
+                    leftIcon={<KeyRound className="w-3.5 h-3.5" />}
+                    onClick={() => handleOpenReset(tutor)}
+                  >
+                    Kata Sandi
+                  </Button>
+
+                  <Button
+                    variant={tutor.is_active ? 'danger' : 'success'}
+                    size="sm"
+                    title={tutor.is_active ? 'Nonaktifkan akun tutor' : 'Aktifkan akun tutor'}
+                    leftIcon={<Power className="w-3.5 h-3.5" />}
+                    onClick={() => handleToggleActive(tutor)}
+                  >
+                    {tutor.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Modal Tambah Tutor Baru */}
       <Modal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         title="Buat Akun Tutor Baru"
-        description="Akun tutor akan otomatis terhubung dengan otorisasi database Supabase."
+        description="Akun tutor akan dapat langsung masuk dan mengelola siswa les binaannya."
       >
         <form onSubmit={handleCreateTutor} className="space-y-4">
           {formError && (
@@ -297,7 +345,7 @@ export const TutorsManagementPage: React.FC = () => {
           )}
 
           <Input
-            label="Nama Lengkap & Gelar Tutor"
+            label="Nama Lengkap & Gelar Tutor *"
             placeholder="Contoh: Siti Nurhaliza, S.Pd"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
@@ -305,26 +353,33 @@ export const TutorsManagementPage: React.FC = () => {
           />
 
           <Input
-            label="Alamat Email Tutor"
+            label="Alamat Email Tutor *"
             type="email"
-            placeholder="contoh: sitinur@syafacourse.id"
+            placeholder="contoh: siti@syafacourse.id"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
           <Input
-            label="Nomor WhatsApp (Opsional)"
+            label="Nomor WhatsApp"
             placeholder="081234567890"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
 
-          <div className="p-3.5 rounded-2xl bg-brand-50 border border-brand-100 text-xs text-brand-800">
-            <p className="font-bold">Keamanan Password:</p>
-            <p className="mt-0.5">
-              Sistem akan membuatkan kredensial aman di backend. Tutor akan menerima undangan login dan link pembuatan password pribadi ke email di atas.
-            </p>
+          <Input
+            label="Kata Sandi Awal Tutor *"
+            type="text"
+            placeholder="Minimal 6 karakter (contoh: Syafa123!)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            leftIcon={<Lock className="w-4 h-4" />}
+            required
+          />
+
+          <div className="p-3 rounded-2xl bg-brand-50 border border-brand-100 text-xs text-brand-800">
+            Berikan alamat email dan kata sandi di atas kepada tutor agar mereka dapat langsung login.
           </div>
 
           <div className="flex justify-end gap-3 pt-3 border-t border-slateNavy-100">
@@ -354,7 +409,7 @@ export const TutorsManagementPage: React.FC = () => {
           )}
 
           <Input
-            label="Nama Lengkap & Gelar Tutor"
+            label="Nama Lengkap & Gelar Tutor *"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -372,6 +427,42 @@ export const TutorsManagementPage: React.FC = () => {
             </Button>
             <Button variant="primary" type="submit">
               Simpan Perubahan
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Modal Reset Kata Sandi Tutor */}
+      <Modal
+        isOpen={isResetPasswordOpen}
+        onClose={() => setIsResetPasswordOpen(false)}
+        title="Atur Ulang Kata Sandi Tutor"
+        description={`Ubah kata sandi login untuk ${selectedTutor?.full_name} (${selectedTutor?.email})`}
+      >
+        <form onSubmit={handleSaveResetPassword} className="space-y-4">
+          {formError && (
+            <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+              <span>{formError}</span>
+            </div>
+          )}
+
+          <Input
+            label="Kata Sandi Baru *"
+            type="text"
+            placeholder="Minimal 6 karakter"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            leftIcon={<Lock className="w-4 h-4" />}
+            required
+          />
+
+          <div className="flex justify-end gap-3 pt-3 border-t border-slateNavy-100">
+            <Button variant="outline" type="button" onClick={() => setIsResetPasswordOpen(false)}>
+              Batal
+            </Button>
+            <Button variant="primary" type="submit">
+              Simpan Kata Sandi Baru
             </Button>
           </div>
         </form>
