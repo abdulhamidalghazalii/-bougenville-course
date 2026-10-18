@@ -83,7 +83,7 @@ export const ProgramsPage: React.FC = () => {
       <Card className="p-6">
         <div className="flex items-center gap-2.5 mb-4">
           <BookOpen className="w-5 h-5 text-brand-600" />
-          <h2 className="text-lg font-bold text-slateNavy-900">Indikator Standar Kurikulum Calistung Syafa Course</h2>
+          <h2 className="text-lg font-bold text-slateNavy-900">Indikator Standar Kurikulum Calistung Bougenville Course</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

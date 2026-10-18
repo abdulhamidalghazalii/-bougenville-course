@@ -9,7 +9,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
-        console.log('Syafa Course PWA registered with scope:', reg.scope);
+        console.log('Bougenville Course PWA registered with scope:', reg.scope);
       })
       .catch((err) => {
         console.warn('PWA registration failed:', err);

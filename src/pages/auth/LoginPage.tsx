@@ -107,7 +107,7 @@ export const LoginPage: React.FC = () => {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-navyInk-700 text-white shadow-subtle mb-3">
           <GraduationCap className="w-8 h-8 text-softBlue-100" />
         </div>
-        <h1 className="text-2xl font-bold text-navyInk-700 tracking-tight">Syafa Course</h1>
+        <h1 className="text-2xl font-bold text-navyInk-700 tracking-tight">Bougenville Course</h1>
         <p className="text-xs text-slateGray-500 mt-1 font-medium">
           Sistem Manajemen Les Privat & Monitoring Belajar Calistung Anak
         </p>
@@ -121,7 +121,7 @@ export const LoginPage: React.FC = () => {
               <div className="mb-4">
                 <h2 className="text-base font-bold text-navyInk-700">Masuk ke Akun Anda</h2>
                 <p className="text-xs text-slateGray-500">
-                  Masukkan email dan kata sandi akun operasional Syafa Course.
+                  Masukkan email dan kata sandi akun operasional Bougenville Course.
                 </p>
               </div>
 
@@ -136,7 +136,7 @@ export const LoginPage: React.FC = () => {
                 <Input
                   label="Alamat Email"
                   type="email"
-                  placeholder="tutor@syafacourse.id"
+                  placeholder="admin@bougenvillecourse.id"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   leftIcon={<Mail className="w-4 h-4 text-slateGray-400" />}
@@ -208,7 +208,7 @@ export const LoginPage: React.FC = () => {
                 <Input
                   label="Email *"
                   type="email"
-                  placeholder="admin@syafacourse.id"
+                  placeholder="admin@bougenvillecourse.id"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                   required
@@ -251,7 +251,7 @@ export const LoginPage: React.FC = () => {
         <div className="mt-5 text-center text-xs text-slateGray-500 space-y-1">
           <p className="flex items-center justify-center gap-1.5 font-medium">
             <CheckCircle2 className="w-3.5 h-3.5 text-deepSage" />
-            <span>Sistem Bimbingan Calistung Terpadu Syafa Course</span>
+            <span>Sistem Bimbingan Calistung Terpadu Bougenville Course</span>
           </p>
         </div>
       </div>

@@ -81,9 +81,9 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* Footer Info */}
-      <div className="pt-4 mt-auto border-t border-slateNavy-100 text-center">
-        <p className="text-[11px] text-slateNavy-400 font-medium">Syafa Course v1.0 • Calistung</p>
-        <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">● Database & RLS Terisolasi</p>
+      <div className="pt-4 mt-auto border-t border-slateGray-100 text-center">
+        <p className="text-[11px] text-slateGray-400 font-medium">Bougenville Course v1.0 • Calistung</p>
+        <p className="text-[10px] text-deepSage font-semibold mt-0.5">● Database & RLS Terisolasi</p>
       </div>
     </aside>
   );

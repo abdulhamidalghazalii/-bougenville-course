@@ -60,7 +60,7 @@ export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(...navyInk);
-    doc.text('SYAFA COURSE', margin, 15);
+    doc.text('BOUGENVILLE COURSE', margin, 15);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
@@ -84,7 +84,7 @@ export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
     doc.setFontSize(7.5);
     doc.setTextColor(...mutedText);
     doc.text(
-      `Laporan Perkembangan Belajar • ${data.student.full_name} (${data.monthName}) • Syafa Course`,
+      `Laporan Perkembangan Belajar • ${data.student.full_name} (${data.monthName}) • Bougenville Course`,
       margin,
       pageHeight - 7
     );
@@ -564,7 +564,7 @@ export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
   doc.setFontSize(7.5);
   doc.setTextColor(...slateText);
   doc.text(
-    `"Setiap pencapaian ananda adalah buah dari ketekunan dan kasih sayang keluarga. Syafa Course bangga dapat bertumbuh bersama ananda."`,
+    `"Setiap pencapaian ananda adalah buah dari ketekunan dan kasih sayang keluarga. Bougenville Course bangga dapat bertumbuh bersama ananda."`,
     margin,
     signY - 4
   );
@@ -596,7 +596,7 @@ export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6);
   doc.setTextColor(...navyInk);
-  doc.text('SYAFA COURSE', stampX, stampY - 4, { align: 'center' });
+  doc.text('BOUGENVILLE COURSE', stampX, stampY - 4, { align: 'center' });
   doc.setFontSize(5);
   doc.setTextColor(...softCoral);
   doc.text('TERVERIFIKASI', stampX, stampY, { align: 'center' });

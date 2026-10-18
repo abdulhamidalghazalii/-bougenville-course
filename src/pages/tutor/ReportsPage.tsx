@@ -137,7 +137,7 @@ export const ReportsPage: React.FC = () => {
 
     const doc = generateMonthlyReportPdf({
       student: targetStudent,
-      tutorName: currentTutor?.full_name || 'Tutor Calistung Syafa Course',
+      tutorName: currentTutor?.full_name || 'Tutor Calistung Bougenville Course',
       monthName: reportMonth,
       periodStart: existingReport?.period_start || periodDates.startStr,
       periodEnd: existingReport?.period_end || periodDates.endStr,
@@ -156,7 +156,7 @@ export const ReportsPage: React.FC = () => {
 
     const cleanName = targetStudent.full_name.replace(/\s+/g, '_');
     const cleanMonth = reportMonth.replace(/\s+/g, '_');
-    doc.save(`Rapor_Bulanan_SyafaCourse_${cleanName}_${cleanMonth}.pdf`);
+    doc.save(`Rapor_Bulanan_BougenvilleCourse_${cleanName}_${cleanMonth}.pdf`);
     showToast('File PDF Rapor Bulanan berhasil diunduh.');
   };
 
@@ -171,7 +171,7 @@ export const ReportsPage: React.FC = () => {
 
     const doc = generateMonthlyReportPdf({
       student: selectedStudent,
-      tutorName: currentTutor?.full_name || 'Tutor Calistung Syafa Course',
+      tutorName: currentTutor?.full_name || 'Tutor Calistung Bougenville Course',
       monthName,
       periodStart: periodDates.startStr,
       periodEnd: periodDates.endStr,
@@ -198,7 +198,7 @@ export const ReportsPage: React.FC = () => {
 
     const cleanName = selectedStudent.full_name.replace(/\s+/g, '_');
     const cleanMonth = monthName.replace(/\s+/g, '_');
-    const fileName = `Rapor_Bulanan_SyafaCourse_${cleanName}_${cleanMonth}.pdf`;
+    const fileName = `Rapor_Bulanan_BougenvilleCourse_${cleanName}_${cleanMonth}.pdf`;
 
     const newReport = store.saveReport({
       student_id: selectedStudent.id,
@@ -221,7 +221,7 @@ export const ReportsPage: React.FC = () => {
 
   const whatsappMessage = `Assalamu'alaikum wr. wb., Halo ${parentName} yang dirahmati Allah,
 
-Kami dari *Syafa Course* menyampaikan Laporan Rapor Perkembangan Belajar Bulanan ananda *${selectedStudent?.full_name}* untuk periode *${monthName}*.
+Kami dari *Bougenville Course* menyampaikan Laporan Rapor Perkembangan Belajar Bulanan ananda *${selectedStudent?.full_name}* untuk periode *${monthName}*.
 
 Alhamdulillah, ananda telah menyelesaikan seluruh sesi belajar calistung bulan ini dengan penuh keceriaan dan antusiasme tinggi. Dalam dokumen terlampir, Ayah/Bunda dapat melihat:
 1. Capaian tiga pilar calistung (Membaca, Menulis, & Berhitung)
@@ -229,11 +229,11 @@ Alhamdulillah, ananda telah menyelesaikan seluruh sesi belajar calistung bulan i
 3. Hal yang terus kita dampingi bersama
 4. 3 ide permainan stimulasi menyenangkan di rumah (10 menit sehari)
 
-File PDF resmi telah kami siapkan dan lampirkan di chat ini. Terima kasih banyak atas kepercayaan hangat Ayah & Bunda kepada Syafa Course. 
+File PDF resmi telah kami siapkan dan lampirkan di chat ini. Terima kasih banyak atas kepercayaan hangat Ayah & Bunda kepada Bougenville Course. 
 
 Salam hangat,
-*${currentTutor?.full_name || 'Tutor Syafa Course'}*
-Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
+*${currentTutor?.full_name || 'Tutor Bougenville Course'}*
+Bougenville Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
 
   const handleOpenWhatsApp = () => {
     if (activeReport) {
@@ -613,12 +613,12 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
                 {/* Header Branding */}
                 <div className="flex items-center justify-between border-b border-slateGray-200 pb-3">
                   <div>
-                    <span className="text-sm font-bold text-navyInk-800 tracking-tight">SYAFA COURSE</span>
+                    <span className="text-sm font-bold text-navyInk-800 tracking-tight">BOUGENVILLE COURSE</span>
                     <p className="text-[10px] text-slateGray-500">Bimbingan Belajar Calistung Berbasis Karakter & Fonik Anak</p>
                   </div>
                   <div className="text-right">
                     <span className="text-[9px] font-bold text-navyInk-700 block uppercase tracking-wider">Laporan Resmi Bulanan</span>
-                    <span className="text-[9px] font-mono text-slateGray-400">NO: SC/RP/{selectedStudent?.student_code || '001'}</span>
+                    <span className="text-[9px] font-mono text-slateGray-400">NO: BC/RP/{selectedStudent?.student_code || '001'}</span>
                   </div>
                 </div>
 
@@ -808,15 +808,15 @@ Syafa Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
 
                   {/* Stamp Center */}
                   <div className="w-16 h-16 rounded-full border-2 border-navyInk-700 text-navyInk-700 flex flex-col items-center justify-center text-[7px] font-bold p-1 text-center rotate-[-4deg]">
-                    <span>SYAFA COURSE</span>
+                    <span>BOUGENVILLE</span>
                     <span className="text-[6px] tracking-wider text-slateGray-600">RAPOR RESMI</span>
-                    <span>CALISTUNG</span>
+                    <span>COURSE</span>
                   </div>
 
                   <div className="text-center w-36">
                     <p className="text-slateGray-500 text-[10px]">Tutor Pembimbing,</p>
                     <div className="h-10" />
-                    <p className="font-semibold text-navyInk-800">( {currentTutor?.full_name || 'Tutor Syafa'} )</p>
+                    <p className="font-semibold text-navyInk-800">( {currentTutor?.full_name || 'Tutor Bougenville'} )</p>
                   </div>
                 </div>
               </div>

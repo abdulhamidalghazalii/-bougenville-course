@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-base sm:text-lg text-navyInk-700 tracking-tight">
-                Syafa Course
+                Bougenville Course
               </span>
               <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-softBlue text-navyInk-700">
                 Calistung

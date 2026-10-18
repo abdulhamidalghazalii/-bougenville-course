@@ -1,5 +1,5 @@
-// Syafa Course - Service Worker
-const CACHE_NAME = 'syafa-course-v2';
+// Bougenville Course - Service Worker
+const CACHE_NAME = 'bougenville-course-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

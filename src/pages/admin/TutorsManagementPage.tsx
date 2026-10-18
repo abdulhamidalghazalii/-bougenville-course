@@ -235,7 +235,7 @@ export const TutorsManagementPage: React.FC = () => {
           <UserPlus className="w-10 h-10 text-brand-400 mx-auto" />
           <h3 className="font-bold text-slateNavy-800">Belum Ada Akun Tutor Terdaftar</h3>
           <p className="text-xs text-slateNavy-500 max-w-sm mx-auto">
-            Klik tombol di bawah untuk mendaftarkan tutor pertama yang akan mengajar siswa les di Syafa Course.
+            Klik tombol di bawah untuk mendaftarkan tutor pertama yang akan mengajar siswa les di Bougenville Course.
           </p>
           <Button
             variant="primary"
@@ -355,7 +355,7 @@ export const TutorsManagementPage: React.FC = () => {
           <Input
             label="Alamat Email Tutor *"
             type="email"
-            placeholder="contoh: siti@syafacourse.id"
+            placeholder="contoh: siti@bougenvillecourse.id"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
