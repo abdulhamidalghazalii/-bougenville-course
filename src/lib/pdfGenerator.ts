@@ -22,6 +22,8 @@ export interface MonthlyReportData {
     homeTips?: string;
     nextMonthTargets?: string;
   };
+  tutorSignatureUrl?: string | null;
+  stampImageUrl?: string | null;
 }
 
 export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
@@ -586,23 +588,36 @@ export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
   // Center: Official Stamp Seal
   const stampX = pageWidth / 2;
   const stampY = signY + 14;
-  doc.setDrawColor(...navyInk);
-  doc.setLineWidth(0.6);
-  doc.circle(stampX, stampY, 12, 'S');
-  doc.setDrawColor(...softCoral);
-  doc.setLineWidth(0.3);
-  doc.circle(stampX, stampY, 10, 'S');
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6);
-  doc.setTextColor(...navyInk);
-  doc.text('BOUGENVILLE COURSE', stampX, stampY - 4, { align: 'center' });
-  doc.setFontSize(5);
-  doc.setTextColor(...softCoral);
-  doc.text('TERVERIFIKASI', stampX, stampY, { align: 'center' });
-  doc.setFontSize(5.5);
-  doc.setTextColor(...slateText);
-  doc.text('RAPOR BULANAN', stampX, stampY + 4, { align: 'center' });
+  let stampRendered = false;
+  if (data.stampImageUrl) {
+    try {
+      doc.addImage(data.stampImageUrl, 'PNG', stampX - 12, stampY - 12, 24, 24);
+      stampRendered = true;
+    } catch (e) {
+      console.warn('Failed to render custom stamp image, using vector seal fallback', e);
+    }
+  }
+
+  if (!stampRendered) {
+    doc.setDrawColor(...navyInk);
+    doc.setLineWidth(0.6);
+    doc.circle(stampX, stampY, 12, 'S');
+    doc.setDrawColor(...softCoral);
+    doc.setLineWidth(0.3);
+    doc.circle(stampX, stampY, 10, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6);
+    doc.setTextColor(...navyInk);
+    doc.text('BOUGENVILLE COURSE', stampX, stampY - 4, { align: 'center' });
+    doc.setFontSize(5);
+    doc.setTextColor(...softCoral);
+    doc.text('TERVERIFIKASI', stampX, stampY, { align: 'center' });
+    doc.setFontSize(5.5);
+    doc.setTextColor(...slateText);
+    doc.text('RAPOR BULANAN', stampX, stampY + 4, { align: 'center' });
+  }
 
   // Right Signature: Tutor Pembimbing
   const rightX = pageWidth - margin - 58;
@@ -613,6 +628,16 @@ export function generateMonthlyReportPdf(data: MonthlyReportData): jsPDF {
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...navyInk);
   doc.text('Tutor Pembimbing Calistung', rightX, signY + 7.5);
+
+  // Render Tutor Signature Image if available
+  if (data.tutorSignatureUrl) {
+    try {
+      doc.addImage(data.tutorSignatureUrl, 'PNG', rightX + 6, signY + 8.5, 34, 14);
+    } catch (e) {
+      console.warn('Failed to render tutor signature image in PDF', e);
+    }
+  }
+
   doc.setDrawColor(...dividerLine);
   doc.line(rightX - 2, signY + 23, pageWidth - margin - 4, signY + 23);
   doc.setFont('helvetica', 'bold');

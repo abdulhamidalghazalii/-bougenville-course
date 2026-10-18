@@ -12,14 +12,17 @@ import {
   Lock,
   Mail,
   ShieldAlert,
+  Stamp,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ChangePasswordModal } from '../../components/auth/ChangePasswordModal';
+import { SignatureStampManagerModal } from '../../components/reports/SignatureStampManagerModal';
 
 export const AdminDashboardPage: React.FC = () => {
   const store = useAppStore();
   const navigate = useNavigate();
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isSignStampOpen, setIsSignStampOpen] = useState(false);
 
   const currentUser = store.currentUser;
   const tutors = store.tutors;
@@ -50,6 +53,15 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<Stamp className="w-4 h-4 text-navyInk-700" />}
+            onClick={() => setIsSignStampOpen(true)}
+          >
+            Cap Resmi Lembaga
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -202,7 +214,17 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slateGray-100">
+            <div className="pt-2 border-t border-slateGray-100 space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-center"
+                leftIcon={<Stamp className="w-3.5 h-3.5 text-navyInk-700" />}
+                onClick={() => setIsSignStampOpen(true)}
+              >
+                Kelola Cap Bougenville Course
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -258,6 +280,13 @@ export const AdminDashboardPage: React.FC = () => {
         onClose={() => setIsChangePasswordOpen(false)}
         targetUserId={currentUser?.id}
         targetUserName={currentUser?.full_name}
+      />
+
+      {/* Signature & Stamp Modal for Admin */}
+      <SignatureStampManagerModal
+        isOpen={isSignStampOpen}
+        onClose={() => setIsSignStampOpen(false)}
+        defaultTab="stamp"
       />
     </div>
   );

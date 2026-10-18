@@ -26,8 +26,11 @@ import {
   RefreshCw,
   Edit3,
   AlertCircle,
+  Stamp,
+  FileSignature,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { SignatureStampManagerModal } from '../../components/reports/SignatureStampManagerModal';
 
 const MONTH_NAMES = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -41,6 +44,8 @@ export const ReportsPage: React.FC = () => {
   const myStudents = store.getTutorStudents();
   const reports = store.getTutorReports();
   const indicators = store.indicators;
+  const tutorSignature = store.getTutorSignature();
+  const courseStamp = store.getCourseStamp();
 
   // Selected student
   const [selectedStudentId, setSelectedStudentId] = useState<string>(myStudents[0]?.id || '');
@@ -63,6 +68,8 @@ export const ReportsPage: React.FC = () => {
 
   // Modals state
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [isSignStampModalOpen, setIsSignStampModalOpen] = useState(false);
+  const [signStampInitialTab, setSignStampInitialTab] = useState<'signature' | 'stamp'>('signature');
   const [activeReport, setActiveReport] = useState<LearningReport | null>(reports[0] || null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -152,6 +159,8 @@ export const ReportsPage: React.FC = () => {
         homeTips: homeTips || undefined,
         nextMonthTargets: nextTargets || undefined,
       },
+      tutorSignatureUrl: store.getTutorSignature(),
+      stampImageUrl: store.getCourseStamp(),
     });
 
     const cleanName = targetStudent.full_name.replace(/\s+/g, '_');
@@ -186,6 +195,8 @@ export const ReportsPage: React.FC = () => {
         homeTips: homeTips || undefined,
         nextMonthTargets: nextTargets || undefined,
       },
+      tutorSignatureUrl: store.getTutorSignature(),
+      stampImageUrl: store.getCourseStamp(),
     });
 
     doc.autoPrint();
@@ -279,6 +290,17 @@ Bougenville Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<Stamp className="w-4 h-4 text-navyInk-700" />}
+            onClick={() => {
+              setSignStampInitialTab('signature');
+              setIsSignStampModalOpen(true);
+            }}
+          >
+            Tanda Tangan & Cap
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -802,21 +824,64 @@ Bougenville Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
                 <div className="pt-4 border-t border-slateGray-200 flex items-center justify-between text-[11px]">
                   <div className="text-center w-36">
                     <p className="text-slateGray-500 text-[10px]">Wali Murid,</p>
-                    <div className="h-10" />
-                    <p className="font-semibold text-slateGray-800">( {selectedStudent?.parent?.full_name || 'Ayah / Bunda'} )</p>
+                    <div className="h-12 flex items-center justify-center my-1">
+                      <span className="text-[10px] text-slateGray-300 italic">( Tanda tangan fisik )</span>
+                    </div>
+                    <div className="border-b border-slateGray-300 w-32 mx-auto" />
+                    <p className="font-semibold text-slateGray-800 mt-1">( {selectedStudent?.parent?.full_name || 'Ayah / Bunda'} )</p>
                   </div>
 
                   {/* Stamp Center */}
-                  <div className="w-16 h-16 rounded-full border-2 border-navyInk-700 text-navyInk-700 flex flex-col items-center justify-center text-[7px] font-bold p-1 text-center rotate-[-4deg]">
-                    <span>BOUGENVILLE</span>
-                    <span className="text-[6px] tracking-wider text-slateGray-600">RAPOR RESMI</span>
-                    <span>COURSE</span>
+                  <div
+                    className="flex flex-col items-center justify-center cursor-pointer group"
+                    onClick={() => {
+                      setSignStampInitialTab('stamp');
+                      setIsSignStampModalOpen(true);
+                    }}
+                    title="Klik untuk upload / ubah Cap Bougenville Course"
+                  >
+                    {courseStamp ? (
+                      <div className="w-16 h-16 flex items-center justify-center rotate-[-4deg] group-hover:scale-105 transition-transform">
+                        <img src={courseStamp} alt="Cap Bougenville Course" className="max-h-full max-w-full object-contain" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full border-2 border-navyInk-700 text-navyInk-700 flex flex-col items-center justify-center text-[7px] font-bold p-1 text-center rotate-[-4deg] group-hover:border-navyInk-500 transition-colors shadow-xs">
+                        <span>BOUGENVILLE</span>
+                        <span className="text-[6px] tracking-wider text-softCoral-500 font-extrabold my-0.5">TERVERIFIKASI</span>
+                        <span>COURSE</span>
+                      </div>
+                    )}
+                    <span className="text-[9px] text-slateGray-400 group-hover:text-navyInk-700 mt-1 transition-colors font-medium">
+                      {courseStamp ? 'Cap Kustom (Ubah)' : 'Cap Standar (Upload)'}
+                    </span>
                   </div>
 
-                  <div className="text-center w-36">
+                  {/* Tutor Signature */}
+                  <div
+                    className="text-center w-36 cursor-pointer group"
+                    onClick={() => {
+                      setSignStampInitialTab('signature');
+                      setIsSignStampModalOpen(true);
+                    }}
+                    title="Klik untuk upload / goreskan tanda tangan tutor"
+                  >
                     <p className="text-slateGray-500 text-[10px]">Tutor Pembimbing,</p>
-                    <div className="h-10" />
-                    <p className="font-semibold text-navyInk-800">( {currentTutor?.full_name || 'Tutor Bougenville'} )</p>
+                    <div className="h-12 flex items-center justify-center relative my-1">
+                      {tutorSignature ? (
+                        <img
+                          src={tutorSignature}
+                          alt="Tanda Tangan Tutor"
+                          className="max-h-12 max-w-full object-contain group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="border border-dashed border-slateGray-300 rounded px-2 py-1 text-[9px] text-slateGray-400 group-hover:border-navyInk-400 group-hover:text-navyInk-600 transition-colors flex items-center gap-1">
+                          <FileSignature className="w-3 h-3" />
+                          <span>Upload TTD</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="border-b border-slateGray-300 w-32 mx-auto" />
+                    <p className="font-semibold text-navyInk-800 mt-1">( {currentTutor?.full_name || 'Tutor Bougenville'} )</p>
                   </div>
                 </div>
               </div>
@@ -998,6 +1063,13 @@ Bougenville Course - Belajar Ceria, Tumbuh Penuh Percaya Diri ✨`;
           </div>
         </div>
       </Modal>
+
+      {/* Signature & Stamp Management Modal */}
+      <SignatureStampManagerModal
+        isOpen={isSignStampModalOpen}
+        onClose={() => setIsSignStampModalOpen(false)}
+        defaultTab={signStampInitialTab}
+      />
     </div>
   );
 };

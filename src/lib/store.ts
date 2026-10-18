@@ -42,6 +42,8 @@ const STORAGE_KEYS = {
   SESSIONS: 'syafa_prod_sessions',
   REPORTS: 'syafa_prod_reports',
   AUDIT_LOGS: 'syafa_prod_audit_logs',
+  COURSE_STAMP: 'bougenville_course_stamp',
+  TUTOR_SIGNATURE_PREFIX: 'bougenville_tutor_signature_',
 };
 
 // Helper for localStorage with default fallback
@@ -378,6 +380,40 @@ class AppStore {
       success: true,
       message: 'Kata sandi akun berhasil diperbarui! Silakan gunakan kata sandi baru untuk login selanjutnya.',
     };
+  }
+
+  // SIGNATURE & STAMP MANAGEMENT
+  getCourseStamp(): string | null {
+    return loadData<string | null>(STORAGE_KEYS.COURSE_STAMP, null);
+  }
+
+  setCourseStamp(imageDataUrl: string | null): void {
+    if (imageDataUrl) {
+      saveData(STORAGE_KEYS.COURSE_STAMP, imageDataUrl);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.COURSE_STAMP);
+    }
+    this.logAudit('UPDATE_COURSE_STAMP', 'system', undefined, { updated: !!imageDataUrl });
+    this.notify();
+  }
+
+  getTutorSignature(tutorId?: string): string | null {
+    const id = tutorId || this.currentUser?.id;
+    if (!id) return null;
+    return loadData<string | null>(`${STORAGE_KEYS.TUTOR_SIGNATURE_PREFIX}${id}`, null);
+  }
+
+  setTutorSignature(imageDataUrl: string | null, tutorId?: string): void {
+    const id = tutorId || this.currentUser?.id;
+    if (!id) return;
+    const key = `${STORAGE_KEYS.TUTOR_SIGNATURE_PREFIX}${id}`;
+    if (imageDataUrl) {
+      saveData(key, imageDataUrl);
+    } else {
+      localStorage.removeItem(key);
+    }
+    this.logAudit('UPDATE_TUTOR_SIGNATURE', 'profile', id, { updated: !!imageDataUrl });
+    this.notify();
   }
 
   // TUTOR METHODS: STUDENTS CRUD (Filtered by current logged-in tutor)
