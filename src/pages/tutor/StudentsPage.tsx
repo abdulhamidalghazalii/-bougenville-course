@@ -17,6 +17,8 @@ import {
   AlertCircle,
   GraduationCap,
   BookOpenCheck,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,9 +45,15 @@ export const StudentsPage: React.FC = () => {
 
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
+
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-  // Form State
+  // Add Form State
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('2020-05-10');
   const [educationLevel, setEducationLevel] = useState<EducationLevel>('TK A');
@@ -55,6 +63,17 @@ export const StudentsPage: React.FC = () => {
   const [parentWhatsapp, setParentWhatsapp] = useState('');
   const [parentRelationship, setParentRelationship] = useState<'Ayah' | 'Ibu' | 'Wali'>('Ibu');
   const [formError, setFormError] = useState('');
+
+  // Edit Form State
+  const [editFullName, setEditFullName] = useState('');
+  const [editBirthDate, setEditBirthDate] = useState('');
+  const [editEducationLevel, setEditEducationLevel] = useState<EducationLevel>('TK A');
+  const [editSchoolClass, setEditSchoolClass] = useState('');
+  const [editLearningNeeds, setEditLearningNeeds] = useState('');
+  const [editParentName, setEditParentName] = useState('');
+  const [editParentWhatsapp, setEditParentWhatsapp] = useState('');
+  const [editParentRelationship, setEditParentRelationship] = useState<'Ayah' | 'Ibu' | 'Wali'>('Ibu');
+  const [editFormError, setEditFormError] = useState('');
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setToastMessage({ text, type });
@@ -121,6 +140,73 @@ export const StudentsPage: React.FC = () => {
     } else {
       store.restoreStudent(student.id);
       showToast(`Siswa ${student.full_name} dikembalikan ke status aktif.`, 'success');
+    }
+  };
+
+  const handleOpenEdit = (student: Student) => {
+    setEditingStudent(student);
+    setEditFullName(student.full_name);
+    setEditBirthDate(student.birth_date);
+    setEditEducationLevel(student.education_level);
+    setEditSchoolClass(student.school_class || '');
+    setEditLearningNeeds(student.learning_needs || '');
+    setEditParentName(student.parent?.full_name || '');
+    setEditParentWhatsapp(student.parent?.whatsapp_number || '');
+    setEditParentRelationship((student.parent_link?.relationship as 'Ayah' | 'Ibu' | 'Wali') || 'Ibu');
+    setEditFormError('');
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStudent) return;
+    setEditFormError('');
+
+    if (!editFullName.trim() || !editBirthDate || !editParentName.trim() || !editParentWhatsapp.trim()) {
+      setEditFormError('Mohon lengkapi nama siswa, tanggal lahir, nama wali, dan nomor WhatsApp.');
+      return;
+    }
+
+    const cleanPhone = editParentWhatsapp.replace(/\s+/g, '');
+    if (!/^(08|\+628|628)[0-9]{8,12}$/.test(cleanPhone)) {
+      setEditFormError('Format nomor WhatsApp tidak valid. Gunakan format contoh: 08123456789 atau +628123456789.');
+      return;
+    }
+
+    const result = store.updateStudentWithParent(editingStudent.id, {
+      full_name: editFullName.trim(),
+      birth_date: editBirthDate,
+      education_level: editEducationLevel,
+      school_class: editSchoolClass.trim(),
+      learning_needs: editLearningNeeds.trim(),
+      parent_name: editParentName.trim(),
+      parent_whatsapp: cleanPhone,
+      parent_relationship: editParentRelationship,
+    });
+
+    if (result.success) {
+      setIsEditModalOpen(false);
+      setEditingStudent(null);
+      showToast(result.message, 'success');
+    } else {
+      setEditFormError(result.message);
+    }
+  };
+
+  const handleOpenDelete = (student: Student) => {
+    setDeletingStudent(student);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deletingStudent) return;
+    const res = store.deleteStudent(deletingStudent.id);
+    setIsDeleteModalOpen(false);
+    setDeletingStudent(null);
+    if (res.success) {
+      showToast(res.message, 'success');
+    } else {
+      showToast(res.message, 'error');
     }
   };
 
@@ -325,8 +411,18 @@ export const StudentsPage: React.FC = () => {
                             size="sm"
                             leftIcon={<Eye className="w-3.5 h-3.5" />}
                             onClick={() => navigate(`/tutor/students/${student.id}`)}
+                            title="Lihat Profil & Rapor"
                           >
                             Detail
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                            onClick={() => handleOpenEdit(student)}
+                            title="Edit data siswa & wali murid"
+                          >
+                            Edit
                           </Button>
                           <Button
                             variant="outline"
@@ -344,6 +440,15 @@ export const StudentsPage: React.FC = () => {
                             onClick={() => handleToggleArchive(student)}
                           >
                             {isArchived ? <RotateCcw className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                            title="Hapus siswa permanen"
+                            onClick={() => handleOpenDelete(student)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                           </Button>
                         </div>
                       </td>
@@ -407,15 +512,24 @@ export const StudentsPage: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="pt-1 flex items-center justify-between gap-2">
+                  <div className="pt-1 flex flex-wrap items-center gap-1.5">
                     <Button
                       variant="primary"
                       size="sm"
-                      className="w-full"
+                      className="flex-1"
                       leftIcon={<Eye className="w-3.5 h-3.5" />}
                       onClick={() => navigate(`/tutor/students/${student.id}`)}
                     >
-                      Detail & Rapor
+                      Detail
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                      onClick={() => handleOpenEdit(student)}
+                      title="Edit Data"
+                    >
+                      Edit
                     </Button>
                     <Button
                       variant="outline"
@@ -424,6 +538,15 @@ export const StudentsPage: React.FC = () => {
                       onClick={() => handleToggleArchive(student)}
                     >
                       {isArchived ? <RotateCcw className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-rose-200 text-rose-600 hover:bg-rose-50"
+                      title="Hapus data siswa"
+                      onClick={() => handleOpenDelete(student)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                     </Button>
                   </div>
                 </div>
@@ -556,6 +679,207 @@ export const StudentsPage: React.FC = () => {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Modal Edit Data Siswa & Wali Murid */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingStudent(null);
+        }}
+        title="Edit Data Siswa & Wali Murid"
+        description="Perbarui informasi profil siswa atau kontak orang tua/wali bimbingan Anda."
+        maxWidth="2xl"
+      >
+        <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
+          {editFormError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+              <span>{editFormError}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <Input
+              label="Nama Lengkap Siswa *"
+              placeholder="Contoh: Muhammad Kenzo Pratama"
+              value={editFullName}
+              onChange={(e) => setEditFullName(e.target.value)}
+              required
+            />
+
+            <Input
+              label="Tanggal Lahir Anak *"
+              type="date"
+              value={editBirthDate}
+              onChange={(e) => setEditBirthDate(e.target.value)}
+              required
+            />
+
+            <div className="space-y-1">
+              <label className="block font-bold uppercase tracking-wider text-navyInk-700 text-[11px]">
+                Jenjang Pembelajaran *
+              </label>
+              <select
+                value={editEducationLevel}
+                onChange={(e) => setEditEducationLevel(e.target.value as EducationLevel)}
+                className="w-full rounded-lg border border-slateGray-200 bg-white p-2 text-xs text-navyInk-800 focus:outline-none focus:ring-1 focus:ring-navyInk-600"
+                required
+              >
+                {EDUCATION_LEVELS.map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {lvl}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Input
+              label="Nama Kelas / Asal Sekolah"
+              placeholder="Contoh: TK B Kelompok Bintang / SDN 01"
+              value={editSchoolClass}
+              onChange={(e) => setEditSchoolClass(e.target.value)}
+            />
+          </div>
+
+          <div className="pt-2 border-t border-slateGray-200">
+            <h4 className="font-bold uppercase tracking-wider text-navyInk-700 mb-2.5 text-[11px]">
+              Data Orang Tua / Wali Siswa
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block font-bold uppercase tracking-wider text-navyInk-700 text-[11px] mb-1">
+                  Hubungan
+                </label>
+                <select
+                  value={editParentRelationship}
+                  onChange={(e) => setEditParentRelationship(e.target.value as any)}
+                  className="w-full rounded-lg border border-slateGray-200 bg-white p-2 text-xs text-navyInk-800 focus:outline-none focus:ring-1 focus:ring-navyInk-600"
+                >
+                  <option value="Ibu">Ibu</option>
+                  <option value="Ayah">Ayah</option>
+                  <option value="Wali">Wali</option>
+                </select>
+              </div>
+
+              <div>
+                <Input
+                  label="Nama Wali *"
+                  placeholder="Contoh: Bunda Rini"
+                  value={editParentName}
+                  onChange={(e) => setEditParentName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <Input
+                  label="No. WhatsApp *"
+                  placeholder="081234567890"
+                  value={editParentWhatsapp}
+                  onChange={(e) => setEditParentWhatsapp(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="block font-bold uppercase tracking-wider text-navyInk-700 text-[11px]">
+              Catatan Kebutuhan Belajar Siswa (Opsional)
+            </label>
+            <textarea
+              rows={2}
+              className="w-full rounded-lg border border-slateGray-200 bg-white p-2.5 text-xs text-navyInk-800 focus:outline-none focus:ring-1 focus:ring-navyInk-600 placeholder:text-slateGray-400"
+              placeholder="Contoh: Belum mengenal huruf d dan b, menyukai belajar dengan media benda konkret..."
+              value={editLearningNeeds}
+              onChange={(e) => setEditLearningNeeds(e.target.value)}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slateGray-100">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditingStudent(null);
+              }}
+            >
+              Batal
+            </Button>
+            <Button variant="primary" size="sm" type="submit">
+              Simpan Perubahan
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Modal Konfirmasi Hapus Siswa */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingStudent(null);
+        }}
+        title="Konfirmasi Hapus Data Siswa"
+        description="Tindakan ini permanen dan akan menghapus semua catatan terkait."
+        maxWidth="md"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl space-y-2 text-rose-800">
+            <div className="flex items-center gap-2 font-bold text-rose-900">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>Peringatan Penghapusan Data Permanen</span>
+            </div>
+            <p className="leading-relaxed">
+              Anda akan menghapus data siswa <strong className="font-semibold underline">{deletingStudent?.full_name}</strong> (Kode: {deletingStudent?.student_code}).
+            </p>
+            <p className="text-[11px] text-rose-700">
+              Semua jadwal les, riwayat kehadiran, catatan perkembangan sesi calistung, dan laporan rapor yang telah dibuat untuk siswa ini akan terhapus dari sistem.
+            </p>
+          </div>
+
+          {deletingStudent && (
+            <div className="bg-slateGray-50 border border-slateGray-200 rounded-lg p-3 space-y-1.5 text-slateGray-700">
+              <div className="flex justify-between">
+                <span className="text-slateGray-400">Jenjang:</span>
+                <span className="font-semibold text-navyInk-800">{deletingStudent.education_level}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slateGray-400">Wali Murid:</span>
+                <span className="font-semibold text-navyInk-800">{deletingStudent.parent?.full_name || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slateGray-400">WhatsApp:</span>
+                <span className="font-mono text-navyInk-800">{deletingStudent.parent?.whatsapp_number || '-'}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slateGray-100">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setDeletingStudent(null);
+              }}
+            >
+              Batalkan
+            </Button>
+            <button
+              type="button"
+              onClick={handleConfirmDelete}
+              className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 transition-colors shadow-sm"
+            >
+              Ya, Hapus Permanen
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

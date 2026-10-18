@@ -509,6 +509,134 @@ class AppStore {
     return found;
   }
 
+  updateStudentWithParent(
+    id: string,
+    data: {
+      full_name: string;
+      birth_date: string;
+      education_level: Student['education_level'];
+      school_class?: string;
+      learning_needs?: string;
+      parent_name: string;
+      parent_whatsapp: string;
+      parent_relationship: 'Ayah' | 'Ibu' | 'Wali';
+    }
+  ): { success: boolean; message: string } {
+    const currentTutorId = this.currentUser?.id;
+    const existingStudent = this.students.find((s) => s.id === id && s.tutor_id === currentTutorId);
+    if (!existingStudent) {
+      return { success: false, message: 'Data siswa tidak ditemukan atau bukan hak akses Anda.' };
+    }
+
+    const parentId = existingStudent.parent?.id || existingStudent.parent_link?.parent_id;
+
+    // Update parent in parents table
+    if (parentId) {
+      this.parents = this.parents.map((p) =>
+        p.id === parentId
+          ? {
+              ...p,
+              full_name: data.parent_name.trim(),
+              whatsapp_number: data.parent_whatsapp.trim(),
+              updated_at: new Date().toISOString(),
+            }
+          : p
+      );
+      saveData(STORAGE_KEYS.PARENTS, this.parents);
+    }
+
+    const updatedParent: Parent = {
+      id: parentId || 'par-' + Date.now(),
+      tutor_id: currentTutorId || 'usr-default',
+      full_name: data.parent_name.trim(),
+      whatsapp_number: data.parent_whatsapp.trim(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Update student
+    this.students = this.students.map((s) => {
+      if (s.id === id && s.tutor_id === currentTutorId) {
+        return {
+          ...s,
+          full_name: data.full_name.trim(),
+          birth_date: data.birth_date,
+          education_level: data.education_level,
+          school_class: data.school_class?.trim(),
+          learning_needs: data.learning_needs?.trim(),
+          updated_at: new Date().toISOString(),
+          parent: updatedParent,
+          parent_link: s.parent_link
+            ? {
+                ...s.parent_link,
+                relationship: data.parent_relationship,
+                parent: updatedParent,
+              }
+            : {
+                id: 'spl-' + Date.now(),
+                student_id: s.id,
+                parent_id: updatedParent.id,
+                relationship: data.parent_relationship,
+                report_delivery_pref: 'whatsapp',
+                is_primary_contact: true,
+                parent: updatedParent,
+              },
+        };
+      }
+      return s;
+    });
+
+    saveData(STORAGE_KEYS.STUDENTS, this.students);
+    this.logAudit('UPDATE_STUDENT', 'student', id, {
+      name: data.full_name,
+      parent: data.parent_name,
+    });
+    this.notify();
+    return { success: true, message: `Data siswa ${data.full_name} & wali berhasil diperbarui.` };
+  }
+
+  deleteStudent(id: string): { success: boolean; message: string } {
+    const currentTutorId = this.currentUser?.id;
+    const student = this.students.find((s) => s.id === id && s.tutor_id === currentTutorId);
+    if (!student) {
+      return { success: false, message: 'Data siswa tidak ditemukan atau bukan bimbingan Anda.' };
+    }
+
+    const parentId = student.parent?.id || student.parent_link?.parent_id;
+
+    // Delete student
+    this.students = this.students.filter((s) => s.id !== id);
+    saveData(STORAGE_KEYS.STUDENTS, this.students);
+
+    // Delete associated parent if no other students share the parent
+    if (parentId) {
+      const otherChild = this.students.some((s) => s.parent?.id === parentId || s.parent_link?.parent_id === parentId);
+      if (!otherChild) {
+        this.parents = this.parents.filter((p) => p.id !== parentId);
+        saveData(STORAGE_KEYS.PARENTS, this.parents);
+      }
+    }
+
+    // Delete related records (schedules, attendances, sessions, reports)
+    this.schedules = this.schedules.filter((sch) => sch.student_id !== id);
+    saveData(STORAGE_KEYS.SCHEDULES, this.schedules);
+
+    this.attendances = this.attendances.filter((att) => att.student_id !== id);
+    saveData(STORAGE_KEYS.ATTENDANCES, this.attendances);
+
+    this.sessions = this.sessions.filter((ses) => ses.student_id !== id);
+    saveData(STORAGE_KEYS.SESSIONS, this.sessions);
+
+    this.reports = this.reports.filter((rep) => rep.student_id !== id);
+    saveData(STORAGE_KEYS.REPORTS, this.reports);
+
+    this.logAudit('DELETE_STUDENT', 'student', id, { name: student.full_name, code: student.student_code });
+    this.notify();
+    return {
+      success: true,
+      message: `Data siswa ${student.full_name} (${student.student_code}) dan riwayat belajarnya telah dihapus.`,
+    };
+  }
+
   archiveStudent(id: string): boolean {
     return this.updateStudent(id, { status: 'archived' });
   }
