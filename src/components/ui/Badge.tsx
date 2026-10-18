@@ -17,22 +17,22 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const sizeStyles = {
     sm: 'text-[11px] px-2 py-0.5 gap-1',
-    md: 'text-xs px-2.5 py-1 gap-1.5',
+    md: 'text-xs px-2.5 py-0.5 gap-1.5',
   };
 
   const variantStyles = {
-    blue: 'bg-brand-50 text-brand-700 border border-brand-200/80',
-    pink: 'bg-pastelPink-50 text-pastelPink-600 border border-pastelPink-200/80',
-    green: 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
-    amber: 'bg-amber-50 text-amber-700 border border-amber-200/80',
-    slate: 'bg-slate-100 text-slate-700 border border-slate-200',
-    rose: 'bg-rose-50 text-rose-700 border border-rose-200/80',
-    purple: 'bg-purple-50 text-purple-700 border border-purple-200/80',
+    blue: 'bg-softBlue text-navyInk-700 border border-navyInk-200',
+    pink: 'bg-softCoral-100 text-softCoral-500 border border-softCoral-200',
+    green: 'bg-sageGreen text-deepSage border border-sageGreen-200',
+    amber: 'bg-amber-50 text-amber-800 border border-amber-200',
+    slate: 'bg-slateGray-100 text-slateGray-700 border border-slateGray-200',
+    rose: 'bg-rose-50 text-rose-700 border border-rose-200',
+    purple: 'bg-navyInk-50 text-navyInk-700 border border-navyInk-200',
   };
 
   return (
     <span
-      className={`inline-flex items-center font-semibold rounded-full shrink-0 ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center font-semibold rounded-md shrink-0 ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
       <span>{children}</span>

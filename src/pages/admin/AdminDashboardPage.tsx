@@ -32,17 +32,23 @@ export const AdminDashboardPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slateGray-200 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slateNavy-900 tracking-tight">
-            Dashboard Administrator
+          <div className="flex items-center gap-2 mb-1 text-xs">
+            <span className="font-bold uppercase tracking-wider text-navyInk-700">Bougenville Course</span>
+            <span className="text-slateGray-300">•</span>
+            <span className="text-slateGray-500">Panel Administrator Lembaga</span>
+          </div>
+          <h1 className="text-2xl font-bold text-navyInk-700 tracking-tight">
+            Pengelolaan Akun & Akses Tutor
           </h1>
-          <p className="text-sm text-slateNavy-500 mt-1">
-            Pengelolaan kredensial akun tutor, status keaktifan, dan audit keamanan sistem.
+          <p className="text-xs text-slateGray-500 mt-0.5">
+            Manajemen kredensial pengajar, status akun aktif/nonaktif, dan audit log keamanan sistem.
           </p>
         </div>
         <Button
           variant="primary"
+          size="sm"
           leftIcon={<UserPlus className="w-4 h-4" />}
           onClick={() => navigate('/admin/tutors')}
         >
@@ -51,40 +57,33 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* Role Boundary Notice */}
-      <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
-        <div className="text-xs">
-          <span className="font-bold">Prinsip Keamanan Role-Based Separation: </span>
-          Admin hanya berwenang mengelola otorisasi akun tutor dan tidak memiliki akses baca/tulis ke data siswa, catatan operasional pembelajaran, maupun laporan calistung privat anak.
+      <div className="p-3.5 rounded-lg bg-slateGray-100 border border-slateGray-200 text-slateGray-700 flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-navyInk-700 shrink-0 mt-0.5" />
+        <div className="text-xs leading-relaxed">
+          <span className="font-bold text-navyInk-800">Prinsip Keamanan Pemisahan Akses: </span>
+          Administrator hanya berwenang mengelola otorisasi akun pengajar. Data operasional pembelajaran, catatan perkembangan siswa, dan lembar rapor bulanan diisolasi khusus untuk tutor penanggung jawab.
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard
-          title="Total Akun Tutor"
-          value={totalTutors}
-          subtitle="Tutor terdaftar di sistem"
-          icon={<Users className="w-6 h-6" />}
-          iconBgColor="bg-blue-50 text-blue-600"
-          onClick={() => navigate('/admin/tutors')}
-        />
-        <StatCard
-          title="Tutor Aktif"
-          value={activeTutors}
-          subtitle="Dapat login dan mengajar"
-          icon={<UserCheck className="w-6 h-6" />}
-          iconBgColor="bg-emerald-50 text-emerald-600"
-          onClick={() => navigate('/admin/tutors')}
-        />
-        <StatCard
-          title="Tutor Nonaktif"
-          value={inactiveTutors}
-          subtitle="Akses sistem ditangguhkan"
-          icon={<UserX className="w-6 h-6" />}
-          iconBgColor="bg-rose-50 text-rose-600"
-          onClick={() => navigate('/admin/tutors')}
-        />
+      {/* Clean Metric Indicators */}
+      <div className="bg-white rounded-lg border border-slateGray-200 p-4 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slateGray-200">
+        <div className="p-2 sm:p-3 cursor-pointer hover:bg-slateGray-50 transition-colors rounded" onClick={() => navigate('/admin/tutors')}>
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Total Akun Tutor</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{totalTutors} Pengajar</div>
+          <span className="text-[11px] text-slateGray-400 mt-0.5 block">Terdaftar pada sistem</span>
+        </div>
+
+        <div className="p-2 sm:p-3 cursor-pointer hover:bg-slateGray-50 transition-colors rounded" onClick={() => navigate('/admin/tutors')}>
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Tutor Aktif</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{activeTutors} Akun</div>
+          <span className="text-[11px] text-deepSage font-medium mt-0.5 block">Dapat login dan mengajar</span>
+        </div>
+
+        <div className="p-2 sm:p-3 cursor-pointer hover:bg-slateGray-50 transition-colors rounded" onClick={() => navigate('/admin/tutors')}>
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Tutor Nonaktif</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{inactiveTutors} Akun</div>
+          <span className="text-[11px] text-slateGray-400 mt-0.5 block">Akses masuk ditangguhkan</span>
+        </div>
       </div>
 
       {/* Main Grid */}

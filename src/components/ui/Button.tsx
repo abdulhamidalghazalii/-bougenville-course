@@ -19,21 +19,21 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-offset-1';
 
   const sizeStyles = {
     sm: 'text-xs px-3 py-1.5 gap-1.5',
-    md: 'text-sm px-4 py-2.5 gap-2',
-    lg: 'text-base px-6 py-3 gap-2.5 shadow-md',
+    md: 'text-sm px-4 py-2 gap-2',
+    lg: 'text-base px-5 py-2.5 gap-2 shadow-xs',
   };
 
   const variantStyles = {
-    primary: 'bg-brand-500 hover:bg-brand-600 text-white shadow-sm shadow-brand-500/25 focus:ring-brand-400',
-    secondary: 'bg-pastelPink-100 hover:bg-pastelPink-200 text-pastelPink-600 focus:ring-pastelPink-300',
-    outline: 'border border-slateNavy-200 hover:bg-slateNavy-50 text-slateNavy-700 focus:ring-slateNavy-300',
-    ghost: 'hover:bg-slateNavy-100 text-slateNavy-600 focus:ring-slateNavy-200',
-    danger: 'bg-rose-500 hover:bg-rose-600 text-white shadow-sm shadow-rose-500/25 focus:ring-rose-400',
-    success: 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/25 focus:ring-emerald-400',
+    primary: 'bg-navyInk-700 hover:bg-navyInk-800 text-white shadow-xs focus:ring-navyInk-400',
+    secondary: 'bg-softBlue hover:bg-softBlue-200 text-navyInk-700 font-semibold focus:ring-navyInk-300',
+    outline: 'border border-slateGray-300 bg-white hover:bg-slateGray-50 text-slateGray-700 focus:ring-slateGray-300',
+    ghost: 'hover:bg-slateGray-100 text-slateGray-600 focus:ring-slateGray-200',
+    danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs focus:ring-rose-400',
+    success: 'bg-deepSage hover:bg-sageGreen-700 text-white shadow-xs focus:ring-sageGreen-500',
   };
 
   return (

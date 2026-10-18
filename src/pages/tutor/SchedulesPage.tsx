@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../lib/store';
 import { Schedule, AttendanceStatus } from '../../types';
 import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
@@ -13,7 +12,6 @@ import {
   MapPin,
   Plus,
   CheckCircle2,
-  XCircle,
   AlertCircle,
   UserCheck,
   CalendarCheck,
@@ -122,27 +120,33 @@ export const SchedulesPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-10">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl shadow-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2 animate-in slide-in-from-top-5">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span className="text-sm font-semibold">{toastMessage}</span>
+        <div className="fixed top-20 right-6 z-50 p-4 rounded-xl shadow-lg bg-sageGreen border border-sageGreen-300 text-deepSage flex items-center gap-2 animate-in slide-in-from-top-5">
+          <CheckCircle2 className="w-5 h-5 text-deepSage shrink-0" />
+          <span className="text-xs font-semibold">{toastMessage}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slateGray-200 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slateNavy-900 tracking-tight">
-            Jadwal Les & Kehadiran
+          <div className="flex items-center gap-2 mb-1 text-xs">
+            <span className="font-bold uppercase tracking-wider text-navyInk-700">Bougenville Course</span>
+            <span className="text-slateGray-300">•</span>
+            <span className="text-slateGray-500">Agenda Pembelajaran</span>
+          </div>
+          <h1 className="text-2xl font-bold text-navyInk-700 tracking-tight">
+            Jadwal Les & Kehadiran Siswa
           </h1>
-          <p className="text-sm text-slateNavy-500 mt-1">
+          <p className="text-xs text-slateGray-500 mt-0.5">
             Kelola agenda pertemuan bimbingan calistung dan catat presensi siswa secara real-time.
           </p>
         </div>
         <Button
           variant="primary"
+          size="sm"
           leftIcon={<Plus className="w-4 h-4" />}
           onClick={() => {
             setFormError('');
@@ -158,7 +162,7 @@ export const SchedulesPage: React.FC = () => {
         <EmptyState
           title="Belum Ada Jadwal Les"
           description="Buat agenda pertemuan pertama dengan siswa Anda untuk memulai bimbingan belajar calistung."
-          icon={<Calendar className="w-8 h-8" />}
+          icon={<Calendar className="w-8 h-8 text-slateGray-400" />}
           actionText="Buat Jadwal Baru"
           onAction={() => setIsAddModalOpen(true)}
         />
@@ -171,42 +175,40 @@ export const SchedulesPage: React.FC = () => {
             const isCancelled = sch.status === 'cancelled';
 
             return (
-              <Card
+              <div
                 key={sch.id}
-                className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
-                  isCancelled ? 'opacity-50 bg-slateNavy-50' : isCompleted ? 'border-emerald-200' : ''
+                className={`p-4 rounded-xl border border-slateGray-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                  isCancelled ? 'opacity-50 bg-slateGray-50' : isCompleted ? 'border-sageGreen-300' : ''
                 }`}
-                hoverEffect={!isCancelled}
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3.5 rounded-2xl bg-brand-50 text-brand-600 flex flex-col items-center justify-center text-center w-16 shrink-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700">
+                <div className="flex items-start gap-3.5">
+                  <div className="p-2.5 rounded-lg bg-softBlue text-navyInk-700 flex flex-col items-center justify-center text-center w-14 shrink-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
                       {startDate.toLocaleDateString('id-ID', { month: 'short' })}
                     </span>
-                    <span className="text-xl font-extrabold text-brand-900 leading-none mt-0.5">
+                    <span className="text-lg font-bold leading-none mt-0.5">
                       {startDate.getDate()}
                     </span>
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-base text-slateNavy-900">
+                      <span className="font-bold text-sm text-navyInk-700">
                         {sch.student?.full_name || 'Siswa'}
                       </span>
                       <Badge variant="blue" size="sm">
                         {sch.student?.education_level}
                       </Badge>
-                      <Badge
-                        variant={
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
                           isCompleted
-                            ? 'green'
+                            ? 'bg-sageGreen text-deepSage'
                             : isCancelled
-                            ? 'rose'
+                            ? 'bg-rose-50 text-rose-700'
                             : sch.status === 'rescheduled'
-                            ? 'amber'
-                            : 'blue'
-                        }
-                        size="sm"
+                            ? 'bg-amber-50 text-amber-800'
+                            : 'bg-softBlue text-navyInk-700'
+                        }`}
                       >
                         {isCompleted
                           ? 'Selesai'
@@ -215,22 +217,23 @@ export const SchedulesPage: React.FC = () => {
                           : sch.status === 'rescheduled'
                           ? 'Dijadwalkan Ulang'
                           : 'Terjadwal'}
-                      </Badge>
+                      </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slateNavy-500 font-medium pt-1">
-                      <span className="flex items-center gap-1.5 text-slateNavy-700">
-                        <Clock className="w-3.5 h-3.5 text-slateNavy-400" />
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slateGray-500 font-medium">
+                      <span className="flex items-center gap-1 text-slateGray-700">
+                        <Clock className="w-3.5 h-3.5 text-slateGray-400" />
                         {startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} -{' '}
                         {endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-slateNavy-400" />
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-slateGray-400" />
                         {sch.location}
                       </span>
                     </div>
 
-                    {sch.notes && <p className="text-xs text-slateNavy-500 italic mt-1">{sch.notes}</p>}
+                    {sch.notes && <p className="text-[11px] text-slateGray-500 italic mt-0.5">{sch.notes}</p>}
                   </div>
                 </div>
 
@@ -261,14 +264,14 @@ export const SchedulesPage: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      leftIcon={<CalendarCheck className="w-3.5 h-3.5 text-emerald-600" />}
+                      leftIcon={<CalendarCheck className="w-3.5 h-3.5 text-deepSage" />}
                       onClick={() => navigate('/tutor/sessions')}
                     >
                       Buka Form Evaluasi
                     </Button>
                   )}
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
@@ -282,25 +285,25 @@ export const SchedulesPage: React.FC = () => {
         description="Pilih siswa, waktu pertemuan, dan lokasi bimbingan."
         maxWidth="lg"
       >
-        <form onSubmit={handleCreateSchedule} className="space-y-4">
+        <form onSubmit={handleCreateSchedule} className="space-y-3.5 text-xs">
           {formError && (
-            <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
               <span>{formError}</span>
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slateNavy-700">
+          <div className="space-y-1">
+            <label className="block font-bold uppercase tracking-wider text-navyInk-700 text-[11px]">
               Pilih Siswa *
             </label>
             {myStudents.length === 0 ? (
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
                 <span>Belum ada siswa terdaftar.</span>
                 <button
                   type="button"
                   onClick={() => navigate('/tutor/students')}
-                  className="font-bold underline text-brand-600 hover:text-brand-800"
+                  className="font-bold underline text-navyInk-700 hover:text-navyInk-900"
                 >
                   Daftarkan Siswa
                 </button>
@@ -309,7 +312,7 @@ export const SchedulesPage: React.FC = () => {
               <select
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                className="w-full rounded-xl border border-slateNavy-200 bg-white px-3.5 py-2.5 text-sm text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-lg border border-slateGray-200 bg-white p-2 text-xs text-navyInk-800 focus:outline-none focus:ring-1 focus:ring-navyInk-600"
                 required
               >
                 {myStudents.map((stu) => (
@@ -321,14 +324,14 @@ export const SchedulesPage: React.FC = () => {
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slateNavy-700">
+          <div className="space-y-1">
+            <label className="block font-bold uppercase tracking-wider text-navyInk-700 text-[11px]">
               Program Belajar
             </label>
             <select
               value={programId}
               onChange={(e) => setProgramId(e.target.value)}
-              className="w-full rounded-xl border border-slateNavy-200 bg-white px-3.5 py-2.5 text-sm text-slateNavy-900 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-slateGray-200 bg-white p-2 text-xs text-navyInk-800 focus:outline-none focus:ring-1 focus:ring-navyInk-600"
             >
               {programs.map((prg) => (
                 <option key={prg.id} value={prg.id}>
@@ -367,7 +370,7 @@ export const SchedulesPage: React.FC = () => {
             label="Lokasi Pembelajaran"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Contoh: Rumah Siswa / Ruang Belajar Syafa"
+            placeholder="Contoh: Rumah Siswa / Ruang Belajar Bougenville"
           />
 
           <Input
@@ -377,11 +380,11 @@ export const SchedulesPage: React.FC = () => {
             placeholder="Materi yang akan disiapkan..."
           />
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slateNavy-100">
-            <Button variant="outline" type="button" onClick={() => setIsAddModalOpen(false)}>
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slateGray-100">
+            <Button variant="outline" size="sm" type="button" onClick={() => setIsAddModalOpen(false)}>
               Batal
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" size="sm" type="submit">
               Simpan Jadwal
             </Button>
           </div>
@@ -396,15 +399,15 @@ export const SchedulesPage: React.FC = () => {
         description={`Pertemuan untuk ${selectedSchedule?.student?.full_name}`}
         maxWidth="md"
       >
-        <form onSubmit={handleSaveAttendance} className="space-y-4">
+        <form onSubmit={handleSaveAttendance} className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slateNavy-700">
+            <label className="block font-bold uppercase tracking-wider text-navyInk-700 text-[11px]">
               Status Presensi *
             </label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { val: 'present', label: 'Hadir Belajar', color: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
-                { val: 'permission', label: 'Izin', color: 'bg-blue-50 text-blue-800 border-blue-300' },
+                { val: 'present', label: 'Hadir Belajar', color: 'bg-sageGreen text-deepSage border-sageGreen-300' },
+                { val: 'permission', label: 'Izin', color: 'bg-softBlue text-navyInk-700 border-navyInk-200' },
                 { val: 'sick', label: 'Sakit', color: 'bg-amber-50 text-amber-800 border-amber-300' },
                 { val: 'absent', label: 'Alpa (Tanpa Kabar)', color: 'bg-rose-50 text-rose-800 border-rose-300' },
               ].map((opt) => (
@@ -412,8 +415,8 @@ export const SchedulesPage: React.FC = () => {
                   key={opt.val}
                   type="button"
                   onClick={() => setAttStatus(opt.val as any)}
-                  className={`p-3 rounded-xl border text-xs font-bold text-center transition-all ${
-                    attStatus === opt.val ? `${opt.color} ring-2 ring-brand-400` : 'border-slateNavy-200 bg-white'
+                  className={`p-2.5 rounded-lg border text-xs font-bold text-center transition-all ${
+                    attStatus === opt.val ? `${opt.color} ring-1 ring-navyInk-600` : 'border-slateGray-200 bg-white text-slateGray-600'
                   }`}
                 >
                   {opt.label}
@@ -429,11 +432,11 @@ export const SchedulesPage: React.FC = () => {
             onChange={(e) => setAttNotes(e.target.value)}
           />
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slateNavy-100">
-            <Button variant="outline" type="button" onClick={() => setIsAttendanceModalOpen(false)}>
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slateGray-100">
+            <Button variant="outline" size="sm" type="button" onClick={() => setIsAttendanceModalOpen(false)}>
               Batal
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" size="sm" type="submit">
               Simpan Presensi
             </Button>
           </div>
