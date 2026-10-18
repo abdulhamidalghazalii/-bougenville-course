@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   const hasAdmin = store.hasAdminAccount();
-  const [isRegisterAdmin, setIsRegisterAdmin] = useState(false);
+  const [isRegisterAdmin, setIsRegisterAdmin] = useState(!hasAdmin);
 
   // Login form state
   const [email, setEmail] = useState('');
@@ -61,32 +61,6 @@ export const LoginPage: React.FC = () => {
     }
 
     setIsLoading(false);
-  };
-
-  const handleQuickLogin = (role: 'tutor' | 'admin') => {
-    if (role === 'tutor') {
-      const tutorAccount = store.accounts.find((a) => a.role === 'tutor') || {
-        email: 'aisyah@syafacourse.id',
-      };
-      const res = store.login(tutorAccount.email, 'tutor123');
-      if (res.success) {
-        navigate('/tutor');
-      } else {
-        setEmail(tutorAccount.email);
-        setPassword('tutor123');
-      }
-    } else {
-      const adminAccount = store.accounts.find((a) => a.role === 'admin') || {
-        email: 'admin@syafacourse.id',
-      };
-      const res = store.login(adminAccount.email, 'admin123');
-      if (res.success) {
-        navigate('/admin');
-      } else {
-        setEmail(adminAccount.email);
-        setPassword('admin123');
-      }
-    }
   };
 
   const handleRegisterAdmin = (e: React.FormEvent) => {
@@ -141,46 +115,6 @@ export const LoginPage: React.FC = () => {
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-7 px-6 sm:px-8 shadow-card rounded-xl border border-slateGray-200 space-y-5">
-          {/* Quick Access Card (Sangat Membantu saat Uji Coba di Vercel) */}
-          <div className="p-3.5 rounded-lg bg-softBlue/60 border border-navyInk-200 text-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-navyInk-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-navyInk-600" />
-                <span>Akses Cepat Pengujian</span>
-              </span>
-              <span className="text-[10px] text-navyInk-600 font-semibold bg-white px-2 py-0.5 rounded">
-                1-Klik Masuk
-              </span>
-            </div>
-            <p className="text-[11px] text-slateGray-600 leading-tight">
-              Pilih peran di bawah ini untuk langsung mencoba fitur aplikasi:
-            </p>
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('tutor')}
-                className="p-2 rounded bg-white border border-slateGray-200 text-navyInk-700 hover:bg-slateGray-50 transition-colors text-left"
-              >
-                <div className="font-bold text-[11px] flex items-center gap-1 text-navyInk-700">
-                  <BookOpen className="w-3 h-3 text-navyInk-600" />
-                  <span>Portal Tutor</span>
-                </div>
-                <div className="text-[10px] text-slateGray-500 truncate">Aisyah Putri, S.Pd</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('admin')}
-                className="p-2 rounded bg-white border border-slateGray-200 text-navyInk-700 hover:bg-slateGray-50 transition-colors text-left"
-              >
-                <div className="font-bold text-[11px] flex items-center gap-1 text-purple-700">
-                  <ShieldCheck className="w-3 h-3 text-purple-600" />
-                  <span>Portal Admin</span>
-                </div>
-                <div className="text-[10px] text-slateGray-500 truncate">Sarah Rahmawati, S.Pd</div>
-              </button>
-            </div>
-          </div>
-
           {!isRegisterAdmin ? (
             /* STANDARD LOGIN FORM */
             <div>
