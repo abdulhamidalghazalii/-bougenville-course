@@ -21,7 +21,7 @@ export const BottomNav: React.FC = () => {
     { to: '/tutor/students', label: 'Siswa', icon: Users },
     { to: '/tutor/schedules', label: 'Jadwal', icon: CalendarDays },
     { to: '/tutor/sessions', label: 'Sesi', icon: BookOpenCheck },
-    { to: '/tutor/reports', label: 'Laporan', icon: FileText },
+    { to: '/tutor/reports', label: 'Rapor', icon: FileText },
   ];
 
   const adminItems = [

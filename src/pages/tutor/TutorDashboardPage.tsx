@@ -1,29 +1,27 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../lib/store';
-import { StatCard } from '../../components/ui/StatCard';
-import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import {
   Users,
   Calendar,
-  CheckCircle,
+  CheckCircle2,
   FileText,
   UserPlus,
-  PlusCircle,
   BookOpenCheck,
   TrendingUp,
   AlertCircle,
   Clock,
   ArrowRight,
-  Sparkles,
-  Phone,
+  Send,
+  MapPin,
+  CalendarDays,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -41,361 +39,375 @@ export const TutorDashboardPage: React.FC = () => {
   const mySessions = store.getTutorSessions();
   const myReports = store.getTutorReports();
 
-  // Today's date in local YYYY-MM-DD
   const todayStr = new Date().toISOString().split('T')[0];
-
-  // Today's schedules
-  const todaySchedules = mySchedules.filter((sch) => sch.start_at.startsWith(todayStr));
-
-  // Sessions completed this month (October 2026)
+  const currentMonthStr = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
   const currentMonthPrefix = todayStr.substring(0, 7);
-  const completedThisMonth = mySessions.filter(
-    (ses) => ses.status === 'finalized' && ses.session_date.startsWith(currentMonthPrefix)
-  );
 
-  // Attendance summary
+  // 1. Jadwal terdekat (hari ini dan mendatang)
+  const upcomingSchedules = mySchedules
+    .filter((sch) => sch.status === 'scheduled')
+    .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
+    .slice(0, 4);
+
+  // 2. Siswa yang perlu dievaluasi (belum ada sesi difinalisasi minggu ini atau memiliki catatan kendala)
+  const studentsNeedingEvaluation = myStudents.filter((stu) => {
+    const studentSessions = mySessions.filter((s) => s.student_id === stu.id);
+    if (studentSessions.length === 0) return true;
+    const latest = studentSessions[0];
+    return latest.status === 'draft' || !!latest.difficulties;
+  });
+
+  // 3. Catatan pembelajaran terbaru (sesi terakhir)
+  const recentSessions = mySessions.slice(0, 4);
+
+  // 4. Laporan yang belum diterbitkan bulan ini
+  const reportedStudentIds = new Set(
+    myReports
+      .filter((r) => r.period_start.startsWith(currentMonthPrefix))
+      .map((r) => r.student_id)
+  );
+  const studentsWithoutMonthlyReport = activeStudents.filter((s) => !reportedStudentIds.has(s.id));
+
+  // 5. Ringkasan kehadiran bulan berjalan
   const tutorStudentIds = new Set(myStudents.map((s) => s.id));
-  const relevantAttendances = store.attendances.filter((a) => tutorStudentIds.has(a.student_id));
+  const relevantAttendances = store.attendances.filter(
+    (a) => tutorStudentIds.has(a.student_id) && a.date.startsWith(currentMonthPrefix)
+  );
   const totalAtt = relevantAttendances.length;
   const presentAtt = relevantAttendances.filter((a) => a.status === 'present').length;
   const attendanceRate = totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : 100;
 
-  // Students needing attention (have difficult notes or low evaluation)
-  const studentsNeedingPractice = myStudents.filter((stu) => {
-    const studentSessions = mySessions.filter((s) => s.student_id === stu.id);
-    if (studentSessions.length === 0) return true;
-    const latest = studentSessions[0];
-    return latest.difficulties || latest.assessments?.some((a) => a.assessment_level === 'BB' || a.assessment_level === 'MB');
-  });
-
-  // Selected student for quick visual chart preview
+  // Selected student for Functional Progress Chart
   const [selectedStudentId, setSelectedStudentId] = useState<string>(myStudents[0]?.id || '');
   const selectedStudent = myStudents.find((s) => s.id === selectedStudentId) || myStudents[0];
 
-  // Chart data for selected student's recent finalized sessions
-  const studentSessions = selectedStudent
-    ? mySessions.filter((s) => s.student_id === selectedStudent.id && s.status === 'finalized').slice(0, 5).reverse()
+  const studentFinalizedSessions = selectedStudent
+    ? mySessions
+        .filter((s) => s.student_id === selectedStudent.id && s.status === 'finalized')
+        .slice(0, 6)
+        .reverse()
     : [];
 
-  const chartData = studentSessions.map((ses, idx) => {
-    const assessments = ses.assessments || [];
-    const scored = assessments.filter((a) => a.assessment_level !== 'UNASSESSED');
-    const scoreMap: Record<string, number> = { BB: 1, MB: 2, BSH: 3, BSB: 4 };
-    const avgScore =
-      scored.length > 0
-        ? Number((scored.reduce((acc, cur) => acc + (scoreMap[cur.assessment_level] || 0), 0) / scored.length).toFixed(1))
-        : 0;
+  const chartData = studentFinalizedSessions.map((ses, idx) => {
+    const asm = ses.assessments || [];
+    const getDomainAvg = (cat: 'membaca' | 'menulis' | 'berhitung') => {
+      const catIndIds = new Set(store.indicators.filter((i) => i.category === cat).map((i) => i.id));
+      const relevant = asm.filter((a) => catIndIds.has(a.indicator_id) && a.assessment_level !== 'UNASSESSED');
+      if (relevant.length === 0) return null;
+      const scoreMap: Record<string, number> = { BB: 1, MB: 2, BSH: 3, BSB: 4 };
+      const sum = relevant.reduce((acc, c) => acc + (scoreMap[c.assessment_level] || 0), 0);
+      return Number((sum / relevant.length).toFixed(1));
+    };
 
     return {
-      name: `Sesi ${idx + 1} (${new Date(ses.session_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })})`,
-      skorRataRata: avgScore,
-      indikatorDinilai: scored.length,
+      sessionLabel: `Sesi ${idx + 1} (${new Date(ses.session_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })})`,
+      Membaca: getDomainAvg('membaca'),
+      Menulis: getDomainAvg('menulis'),
+      Berhitung: getDomainAvg('berhitung'),
     };
   });
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-brand-600 via-brand-500 to-pastelPink-500 rounded-3xl p-6 sm:p-8 text-white shadow-card relative overflow-hidden">
-        <div className="relative z-10 max-w-2xl">
-          <Badge variant="blue" className="bg-white/20 text-white border-white/30 backdrop-blur-md mb-2">
-            Selamat Datang, {currentTutor?.full_name}
-          </Badge>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Dashboard Pembelajaran Calistung
-          </h1>
-          <p className="text-sm text-white/90 mt-2 font-medium">
-            Pantau kehadiran, jadwalkan les, dan catat hasil evaluasi membaca, menulis, serta berhitung dengan mudah dan ceria.
-          </p>
-
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5 mt-5">
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<UserPlus className="w-4 h-4" />}
-              onClick={() => navigate('/tutor/students')}
-              className="bg-white text-brand-700 hover:bg-cream-100 shadow-sm"
-            >
-              Tambah Siswa
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<Calendar className="w-4 h-4" />}
-              onClick={() => navigate('/tutor/schedules')}
-              className="bg-white/20 text-white hover:bg-white/30 border border-white/30 backdrop-blur-md"
-            >
-              Buat Jadwal
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<BookOpenCheck className="w-4 h-4" />}
-              onClick={() => navigate('/tutor/sessions')}
-              className="bg-white/20 text-white hover:bg-white/30 border border-white/30 backdrop-blur-md"
-            >
-              Input Hasil Belajar
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<FileText className="w-4 h-4" />}
-              onClick={() => navigate('/tutor/reports')}
-              className="bg-white/20 text-white hover:bg-white/30 border border-white/30 backdrop-blur-md"
-            >
-              Buat Laporan PDF
-            </Button>
+    <div className="space-y-6 max-w-6xl mx-auto pb-10">
+      {/* 1. Clean Header Strip (Anti-AI-Slop, No huge gradients) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slateGray-200 pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-navyInk-700">
+              Portal Pengajar Calistung
+            </span>
+            <span className="text-slateGray-300">•</span>
+            <span className="text-xs text-slateGray-500">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
           </div>
+          <h1 className="text-2xl font-bold text-navyInk-700 tracking-tight mt-1">
+            Selamat Datang, {currentTutor?.full_name?.split(',')[0]}
+          </h1>
+          <p className="text-xs text-slateGray-500 mt-0.5">
+            Kelola jadwal les, input evaluasi formatif calistung, dan pantau penyusunan rapor bulanan siswa.
+          </p>
         </div>
 
-        {/* Decorative background circle */}
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<Calendar className="w-4 h-4 text-slateGray-600" />}
+            onClick={() => navigate('/tutor/schedules')}
+          >
+            Kelola Jadwal
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            leftIcon={<BookOpenCheck className="w-4 h-4" />}
+            onClick={() => navigate('/tutor/sessions')}
+          >
+            Catat Pertemuan Baru
+          </Button>
+        </div>
       </div>
 
-      {/* Dynamic Statistics Cards from Database */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Siswa Aktif"
-          value={activeStudents.length}
-          subtitle={`Total ${myStudents.length} terdaftar`}
-          icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
-          iconBgColor="bg-blue-50 text-blue-600"
-          onClick={() => navigate('/tutor/students')}
-        />
-        <StatCard
-          title="Jadwal Hari Ini"
-          value={todaySchedules.length}
-          subtitle="Sesi les terjadwal"
-          icon={<Calendar className="w-5 h-5 sm:w-6 sm:h-6" />}
-          iconBgColor="bg-amber-50 text-amber-600"
-          onClick={() => navigate('/tutor/schedules')}
-        />
-        <StatCard
-          title="Selesai Bulan Ini"
-          value={completedThisMonth.length}
-          subtitle="Sesi telah difinalisasi"
-          icon={<CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />}
-          iconBgColor="bg-emerald-50 text-emerald-600"
-          onClick={() => navigate('/tutor/sessions')}
-        />
-        <StatCard
-          title="Tingkat Kehadiran"
-          value={`${attendanceRate}%`}
-          subtitle={`${presentAtt} dari ${totalAtt} pertemuan`}
-          icon={<TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />}
-          iconBgColor="bg-purple-50 text-purple-600"
-          onClick={() => navigate('/tutor/schedules')}
-        />
+      {/* 2. Measured Metric Indicators (Relevan, Sederhana, Tidak Berlebihan) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-xl bg-white border border-slateGray-200">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Siswa Aktif Bimbingan</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{activeStudents.length} Anak</div>
+          <span className="text-[11px] text-slateGray-400 mt-0.5 block">PAUD, TK, dan SD Kelas 1-2</span>
+        </div>
+
+        <div className="p-4 rounded-xl bg-white border border-slateGray-200">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Pertemuan Bulan Ini</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{relevantAttendances.length} Sesi</div>
+          <span className="text-[11px] text-slateGray-400 mt-0.5 block">Periode {currentMonthStr}</span>
+        </div>
+
+        <div className="p-4 rounded-xl bg-white border border-slateGray-200">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Tingkat Hadir Siswa</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{attendanceRate}%</div>
+          <span className="text-[11px] text-emerald-700 font-medium mt-0.5 block">Presensi tercatat disiplin</span>
+        </div>
+
+        <div className="p-4 rounded-xl bg-white border border-slateGray-200">
+          <span className="text-[11px] font-bold uppercase text-slateGray-500 block">Rapor Belum Terbit</span>
+          <div className="text-2xl font-bold text-navyInk-700 mt-1">{studentsWithoutMonthlyReport.length} Siswa</div>
+          <span className="text-[11px] text-softCoral-500 font-medium mt-0.5 block">Perlu disiapkan untuk wali murid</span>
+        </div>
       </div>
 
-      {/* Actionable Alerts & Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Today's Schedule & Attention List */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Jadwal Hari Ini */}
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-4">
+      {/* 3. Main Operational Sections: Jadwal Terdekat & Siswa Perlu Tindakan */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Column: Jadwal Terdekat & Catatan Belajar Terbaru (7 cols) */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Section 1: Jadwal Terdekat */}
+          <div className="bg-white rounded-xl border border-slateGray-200 p-5 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slateGray-100 pb-3">
               <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-brand-600" />
-                <h2 className="text-base font-bold text-slateNavy-900">Jadwal Les Hari Ini</h2>
+                <Clock className="w-4 h-4 text-navyInk-600" />
+                <h2 className="text-sm font-bold text-navyInk-700">Jadwal Sesi Les Terdekat</h2>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+              <button
+                type="button"
                 onClick={() => navigate('/tutor/schedules')}
+                className="text-xs font-semibold text-navyInk-600 hover:underline flex items-center gap-1"
               >
-                Lihat Kalender
-              </Button>
+                <span>Lihat Semua</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
 
-            {todaySchedules.length === 0 ? (
-              <div className="text-center py-6 bg-cream-50/50 rounded-2xl border border-dashed border-slateNavy-200">
-                <Clock className="w-8 h-8 text-slateNavy-300 mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slateNavy-700">Tidak ada jadwal les untuk hari ini.</p>
-                <p className="text-[11px] text-slateNavy-400 mt-0.5">Nikmati waktu persiapan materi Anda!</p>
+            {upcomingSchedules.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slateGray-400">
+                Belum ada jadwal pertemuan mendatang. Silakan buat jadwal baru.
+              </div>
+            ) : (
+              <div className="divide-y divide-slateGray-100">
+                {upcomingSchedules.map((sch) => {
+                  const student = myStudents.find((s) => s.id === sch.student_id);
+                  const isToday = sch.start_at.startsWith(todayStr);
+
+                  return (
+                    <div key={sch.id} className="py-3 flex items-center justify-between gap-3 text-xs">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-navyInk-700 text-sm">
+                            {student?.full_name || 'Siswa'}
+                          </span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-softBlue text-navyInk-700">
+                            {student?.education_level}
+                          </span>
+                          {isToday && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                              Hari Ini
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-slateGray-500 text-[11px]">
+                          <span>
+                            {new Date(sch.start_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} - {new Date(sch.end_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-slateGray-400" />
+                            {sch.location}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate('/tutor/sessions')}
+                      >
+                        Catat Sesi
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Section 2: Catatan Pembelajaran Terbaru */}
+          <div className="bg-white rounded-xl border border-slateGray-200 p-5 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slateGray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <BookOpenCheck className="w-4 h-4 text-navyInk-600" />
+                <h2 className="text-sm font-bold text-navyInk-700">Catatan Pembelajaran Terbaru</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/tutor/sessions')}
+                className="text-xs font-semibold text-navyInk-600 hover:underline flex items-center gap-1"
+              >
+                <span>Riwayat Sesi</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {recentSessions.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slateGray-400">
+                Belum ada sesi pembelajaran yang dicatat.
               </div>
             ) : (
               <div className="space-y-3">
-                {todaySchedules.map((sch) => (
-                  <div
-                    key={sch.id}
-                    className="p-4 rounded-2xl border border-slateNavy-100 bg-white hover:border-brand-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slateNavy-900">{sch.student?.full_name}</span>
-                        <Badge variant="blue" size="sm">
-                          {sch.student?.education_level}
+                {recentSessions.map((ses) => {
+                  const student = myStudents.find((s) => s.id === ses.student_id);
+
+                  return (
+                    <div
+                      key={ses.id}
+                      className="p-3.5 rounded-lg border border-slateGray-100 bg-slateGray-50 text-xs space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-navyInk-700">{student?.full_name}</span>
+                          <span className="text-[11px] text-slateGray-400">
+                            ({new Date(ses.session_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })})
+                          </span>
+                        </div>
+                        <Badge variant={ses.status === 'finalized' ? 'green' : 'amber'} size="sm">
+                          {ses.status === 'finalized' ? 'Difinalisasi' : 'Draf'}
                         </Badge>
                       </div>
-                      <p className="text-xs text-slateNavy-500 mt-1 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-slateNavy-400" />
-                        <span>
-                          {new Date(sch.start_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} -{' '}
-                          {new Date(sch.end_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        <span className="text-slateNavy-300">•</span>
-                        <span>{sch.location}</span>
-                      </p>
-                    </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-center">
-                      <Button
-                        variant={sch.status === 'completed' ? 'outline' : 'primary'}
-                        size="sm"
-                        leftIcon={<BookOpenCheck className="w-3.5 h-3.5" />}
-                        onClick={() => navigate('/tutor/sessions')}
-                      >
-                        {sch.status === 'completed' ? 'Evaluasi Selesai' : 'Buka Evaluasi'}
-                      </Button>
+                      <p className="text-slateGray-600 line-clamp-1">
+                        <strong>Materi:</strong> {ses.material}
+                      </p>
+
+                      {ses.teacher_notes && (
+                        <p className="text-[11px] text-slateGray-500 italic line-clamp-1">
+                          "{ses.teacher_notes}"
+                        </p>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
-          </Card>
+          </div>
+        </div>
 
-          {/* Quick Progress Chart Visualizer */}
-          <Card className="p-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <div>
-                <h2 className="text-base font-bold text-slateNavy-900">Grafik Perkembangan Belajar</h2>
-                <p className="text-xs text-slateNavy-500">
-                  Rata-rata capaian indikator calistung (Skala 1: BB, 2: MB, 3: BSH, 4: BSB)
-                </p>
+        {/* Right Column: Tindakan Laporan & Grafik Fungsional (5 cols) */}
+        <div className="lg:col-span-5 space-y-5">
+          {/* Section 3: Rapor Bulanan Perlu Diterbitkan */}
+          <div className="bg-white rounded-xl border border-slateGray-200 p-5 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slateGray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-navyInk-600" />
+                <h2 className="text-sm font-bold text-navyInk-700">Rapor Bulanan Perlu Disiapkan</h2>
               </div>
+              <span className="text-[11px] text-slateGray-400">{currentMonthStr}</span>
+            </div>
 
-              {/* Student Selector */}
+            {studentsWithoutMonthlyReport.length === 0 ? (
+              <div className="py-4 text-center text-xs text-emerald-800 bg-sageGreen rounded-lg p-3">
+                Seluruh siswa telah memiliki rapor bulanan untuk periode {currentMonthStr}.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-slateGray-500">
+                  {studentsWithoutMonthlyReport.length} siswa belum dibuatkan rapor untuk bulan ini:
+                </p>
+                <div className="divide-y divide-slateGray-100 max-h-56 overflow-y-auto pr-1">
+                  {studentsWithoutMonthlyReport.map((stu) => (
+                    <div key={stu.id} className="py-2.5 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-bold text-navyInk-700 block">{stu.full_name}</span>
+                        <span className="text-[11px] text-slateGray-400">Wali: {stu.parent?.full_name || 'Ayah/Bunda'}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate('/tutor/reports')}
+                      >
+                        Susun Rapor
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section 4: Grafik Perkembangan Nyata (Hanya jika ada data historis) */}
+          <div className="bg-white rounded-xl border border-slateGray-200 p-5 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slateGray-100 pb-3">
+              <div>
+                <h2 className="text-sm font-bold text-navyInk-700">Grafik Capaian Calistung</h2>
+                <p className="text-[11px] text-slateGray-400">Skala 1 (BB) s/d 4 (BSB) per sesi</p>
+              </div>
               {myStudents.length > 0 && (
                 <select
                   value={selectedStudentId}
                   onChange={(e) => setSelectedStudentId(e.target.value)}
-                  className="rounded-xl border border-slateNavy-200 bg-white px-3 py-1.5 text-xs font-semibold text-slateNavy-800 focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  className="text-xs border border-slateGray-200 rounded-lg px-2 py-1 bg-white font-medium text-navyInk-700 focus:outline-none"
                 >
                   {myStudents.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.full_name} ({s.education_level})
+                      {s.full_name}
                     </option>
                   ))}
                 </select>
               )}
             </div>
 
-            {chartData.length === 0 ? (
-              <div className="text-center py-10 bg-cream-50/50 rounded-2xl border border-dashed border-slateNavy-200">
-                <TrendingUp className="w-8 h-8 text-slateNavy-300 mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slateNavy-700">Belum ada evaluasi tersimpan untuk siswa ini.</p>
-                <p className="text-[11px] text-slateNavy-400 mt-0.5">Selesaikan sesi les pertama untuk melihat grafik tren.</p>
+            {chartData.length < 2 ? (
+              <div className="py-8 text-center text-xs text-slateGray-400 space-y-1">
+                <p>Belum cukup data historis untuk siswa ini.</p>
+                <p className="text-[11px] text-slateGray-400">
+                  Minimal 2 sesi yang telah difinalisasi diperlukan untuk memplot tren.
+                </p>
               </div>
             ) : (
-              <div className="h-64 w-full pt-4">
+              <div className="h-48 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748B' }} />
-                    <YAxis domain={[0, 4]} ticks={[1, 2, 3, 4]} tick={{ fontSize: 11, fill: '#64748B' }} />
+                  <LineChart data={chartData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                    <XAxis dataKey="sessionLabel" tick={{ fontSize: 9, fill: '#64748B' }} />
+                    <YAxis domain={[1, 4]} ticks={[1, 2, 3, 4]} tick={{ fontSize: 9, fill: '#64748B' }} />
                     <Tooltip
                       contentStyle={{
-                        borderRadius: '1rem',
-                        backgroundColor: '#1E293B',
-                        color: '#FFFFFF',
-                        border: 'none',
-                        fontSize: '12px',
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '8px',
+                        fontSize: '11px',
                       }}
-                      formatter={(val: any) => [`${val} / 4.0 (BSB)`, 'Rata-rata Skor']}
                     />
-                    <Bar dataKey="skorRataRata" fill="#38A3F6" radius={[8, 8, 0, 0]} />
-                  </BarChart>
+                    <Line type="monotone" dataKey="Membaca" stroke="#17365D" strokeWidth={2} dot={{ r: 3 }} />
+                    <Line type="monotone" dataKey="Menulis" stroke="#DC644D" strokeWidth={2} dot={{ r: 3 }} />
+                    <Line type="monotone" dataKey="Berhitung" stroke="#467F46" strokeWidth={2} dot={{ r: 3 }} />
+                  </LineChart>
                 </ResponsiveContainer>
+                <div className="flex items-center justify-center gap-4 text-[10px] text-slateGray-500 pt-2 border-t border-slateGray-100">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-0.5 bg-navyInk-700 inline-block" /> Membaca</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-0.5 bg-softCoral-500 inline-block" /> Menulis</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-0.5 bg-sageGreen-500 inline-block" /> Berhitung</span>
+                </div>
               </div>
             )}
-          </Card>
-        </div>
-
-        {/* Right Column: Students needing attention & Reports status */}
-        <div className="space-y-6">
-          {/* Siswa Membutuhkan Latihan Tambahan */}
-          <Card className="p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              <h2 className="text-sm font-bold text-slateNavy-900">Perhatian Belajar Khusus</h2>
-            </div>
-            <p className="text-xs text-slateNavy-500 mb-4">
-              Berdasarkan catatan kesulitan belajar dan indikator MB/BB pada pertemuan terakhir:
-            </p>
-
-            <div className="space-y-3">
-              {studentsNeedingPractice.length === 0 ? (
-                <p className="text-xs text-slateNavy-500 py-3 text-center bg-cream-50 rounded-xl">
-                  Semua siswa terpantau berkembang dengan baik.
-                </p>
-              ) : (
-                studentsNeedingPractice.slice(0, 3).map((stu) => (
-                  <div
-                    key={stu.id}
-                    className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/80 text-xs space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slateNavy-900">{stu.full_name}</span>
-                      <Badge variant="amber" size="sm">
-                        {stu.education_level}
-                      </Badge>
-                    </div>
-                    <p className="text-slateNavy-600 line-clamp-2 text-[11px]">
-                      {stu.learning_needs || 'Perlu pembiasaan pengenalan huruf dan latihan motorik halus di rumah.'}
-                    </p>
-                    <div className="pt-1.5 flex justify-end">
-                      <button
-                        onClick={() => navigate(`/tutor/students/${stu.id}`)}
-                        className="text-[11px] font-bold text-amber-800 hover:underline flex items-center gap-1"
-                      >
-                        Lihat Rincian <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
-
-          {/* Quick Contact Wali Siswa */}
-          <Card className="p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Phone className="w-4 h-4 text-emerald-600" />
-              <h2 className="text-sm font-bold text-slateNavy-900">Kontak Orang Tua Cepat</h2>
-            </div>
-            {myStudents.length === 0 ? (
-              <p className="text-xs text-slateNavy-500 py-3 text-center bg-cream-50 rounded-xl">
-                Belum ada kontak orang tua siswa tersimpan.
-              </p>
-            ) : (
-              <div className="space-y-2.5">
-                {myStudents.map((stu) => (
-                  <div
-                    key={stu.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slateNavy-50 border border-slateNavy-100 text-xs"
-                  >
-                    <div>
-                      <div className="font-bold text-slateNavy-800">{stu.parent?.full_name || 'Wali Siswa'}</div>
-                      <div className="text-[10px] text-slateNavy-500">Wali dari {stu.full_name}</div>
-                    </div>
-                    {stu.parent?.whatsapp_number && (
-                      <a
-                        href={`https://wa.me/${stu.parent.whatsapp_number.replace(/^0/, '62')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-[11px] flex items-center gap-1"
-                      >
-                        WhatsApp
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+          </div>
         </div>
       </div>
     </div>

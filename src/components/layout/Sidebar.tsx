@@ -28,7 +28,7 @@ export const Sidebar: React.FC = () => {
     { to: '/tutor/schedules', label: 'Jadwal & Kehadiran', icon: CalendarDays },
     { to: '/tutor/sessions', label: 'Monitoring Calistung', icon: BookOpenCheck },
     { to: '/tutor/progress', label: 'Grafik Perkembangan', icon: TrendingUp },
-    { to: '/tutor/reports', label: 'Laporan PDF & WA', icon: FileText },
+    { to: '/tutor/reports', label: 'Rapor Bulanan & WA', icon: FileText },
   ];
 
   const adminNavItems = [
