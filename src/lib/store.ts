@@ -348,6 +348,38 @@ class AppStore {
     };
   }
 
+  changePassword(userId: string, currentPassword: string, newPassword: string): { success: boolean; message: string } {
+    const account = this.accounts.find((a) => a.id === userId);
+    if (!account) {
+      return { success: false, message: 'Akun pengguna tidak ditemukan di sistem.' };
+    }
+
+    if (account.passwordHash !== btoa(currentPassword)) {
+      return { success: false, message: 'Kata sandi saat ini yang Anda masukkan salah.' };
+    }
+
+    if (newPassword.length < 6) {
+      return { success: false, message: 'Kata sandi baru minimal harus 6 karakter.' };
+    }
+
+    if (newPassword === currentPassword) {
+      return { success: false, message: 'Kata sandi baru tidak boleh sama dengan kata sandi lama.' };
+    }
+
+    this.accounts = this.accounts.map((a) =>
+      a.id === userId
+        ? { ...a, passwordHash: btoa(newPassword), updated_at: new Date().toISOString() }
+        : a
+    );
+    saveData(STORAGE_KEYS.ACCOUNTS, this.accounts);
+    this.logAudit('CHANGE_PASSWORD', 'profile', userId, { email: account.email, role: account.role });
+    this.notify();
+    return {
+      success: true,
+      message: 'Kata sandi akun berhasil diperbarui! Silakan gunakan kata sandi baru untuk login selanjutnya.',
+    };
+  }
+
   // TUTOR METHODS: STUDENTS CRUD (Filtered by current logged-in tutor)
   getTutorStudents(): Student[] {
     if (this.currentUser?.role === 'admin') {
